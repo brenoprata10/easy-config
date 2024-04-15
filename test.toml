@@ -1,0 +1,12 @@
+[[library]]
+name = "test"
+pre_install_script = "pre install"
+install_script = "install_script"
+post_install_script = "post_install_script"
+
+[[library]]
+name = "test 1"
+pre_install_script = "pre install 1"
+install_script = "install_script 1"
+post_install_script = "post_install_script 1"
+

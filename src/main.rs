@@ -8,5 +8,8 @@ fn main() {
         process::exit(1);
     });
 
-    println!("{:?}", config);
+    if let Err(error) = easy_config::run(config) {
+        eprintln!("Application error: {}", error);
+        process::exit(1);
+    }
 }
