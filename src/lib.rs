@@ -1,23 +1,11 @@
-use std::{env, fs, error::Error};
+use std::{env, error::Error};
 
-use serde::Deserialize;
+mod toml_utils;
+mod installer;
 
 pub struct Config {
     file_path: String,
     supress_errors: bool
-}
-
-#[derive(Deserialize, Debug)]
-pub struct Data {
-    library: Vec<LibraryConfig>,
-}
-
-#[derive(Deserialize, Debug)]
-pub struct LibraryConfig {
-    name: String,
-    pre_install_script: String,
-    install_script: String,
-    post_install_script: String,
 }
 
 impl Config {
@@ -36,10 +24,8 @@ impl Config {
 }
 
 pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
-    let toml_string = fs::read_to_string(config.file_path)?;
-    let library_config: Data = toml::from_str(&toml_string)?;
-
-    println!("{:?}",library_config);
+    let data = toml_utils::read_file(config)?;
+    installer::install(data);
 
     Ok(())
 }
