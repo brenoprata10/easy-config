@@ -36,11 +36,13 @@ fn runner(command: &str) -> Result<String, Box<dyn Error>> {
         .arg(&command)
         .output()?;
 
-    let stdout = String::from_utf8_lossy(&output.stdout);
 
     if !output.status.success() {
-        return Err(stdout.into());
+    let stderr = String::from_utf8_lossy(&output.stderr);
+        return Err(stderr.into());
     }
+
+    let stdout = String::from_utf8_lossy(&output.stdout);
 
     Ok(stdout.to_string())
 }
