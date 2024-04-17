@@ -28,7 +28,7 @@ install_script = "curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/
 
 [[library]]
 name = "Oh My Zsh"
-install_script = "sh -c \"$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)\""
+install_script = "curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh | bash"
 
 [[library]]
 name = "Powerlevel10k"
@@ -40,7 +40,7 @@ install_script = "rm -rf $HOME/.oh-my-zsh/custom/plugins/zsh-autosuggestions && 
 
 [[library]]
 name = "Neovim"
-install_script = "wget https://github.com/neovim/neovim/releases/latest/download/nvim-linux64.tar.gz -O - | tar -xz && cd nvim-linux64/bin && sudo mv nvim ~/bin"
+install_script = "wget https://github.com/neovim/neovim/releases/latest/download/nvim-linux64.tar.gz -O - | tar -xz && cd nvim-linux64/bin && sudo mv nvim ~/bin && cd ../../ && rm -rf nvim-linux*"
 
 [[library]]
 name = "Vim-Plug"
@@ -48,7 +48,7 @@ install_script = "curl -fLo \"${XDG_DATA_HOME:-$HOME/.local/share}\"/nvim/site/a
 
 [[library]]
 name = "Fira Code"
-install_script = "wget -nv https://github.com/ryanoasis/nerd-fonts/releases/download/v3.2.1/FiraCode.zip && unzip FiraCode.zip -d FiraCode && cd FiraCode && sudo mv * ~/.local/share/fonts"
+install_script = "mkdir -p ~/.local/share/fonts/ && wget -nv https://github.com/ryanoasis/nerd-fonts/releases/download/v3.2.1/FiraCode.zip && unzip FiraCode.zip -d FiraCode && cd FiraCode && sudo mv * ~/.local/share/fonts && cd ../ && rm -rf Fira*"
 
 [[library]]
 name = "Git Config"
@@ -56,5 +56,5 @@ install_script = "git config --global credential.helper store && export GIT_EDIT
 
 [[library]]
 name = "My Neovim Config"
-install_script = "rm -rf $HOME/.config/nvim && git clone https://github.com/brenoprata10/nvim.git"
+install_script = "rm -rf $HOME/.config/nvim && cd $HOME/.config && git clone https://github.com/brenoprata10/nvim.git"
 
