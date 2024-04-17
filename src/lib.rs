@@ -25,7 +25,7 @@ impl Config {
 
 pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
     let data = toml_utils::read_file(config)?;
-    installer::install(data);
+    installer::install(data)?;
 
     Ok(())
 }
