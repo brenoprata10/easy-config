@@ -26,7 +26,6 @@ pub fn install(data: Data) -> Result<(), Box<dyn Error>> {
         });
 
         eprintln!("\n\x1b[37m{output}");
-        eprintln!("\x1b[32mSuccessfully Installed.");
     }
 
     Ok(())

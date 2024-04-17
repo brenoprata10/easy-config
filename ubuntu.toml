@@ -8,19 +8,19 @@ install_script = "curl -sS https://raw.githubusercontent.com/ajeetdsouza/zoxide/
 
 [[library]]
 name = "Exa"
-install_script = "sudo nala -y install exa"
+install_script = "sudo nala install -y exa"
 
 [[library]]
 name = "Bat"
-install_script = "sudo nala -y install bat"
+install_script = "sudo nala install -y bat"
 
 [[library]]
 name = "RipGrep"
-install_script = "sudo nala -y install ripgrep"
+install_script = "sudo nala install -y ripgrep"
 
 [[library]]
 name = "ZSH"
-install_script = "sudo nala -y install zsh"
+install_script = "sudo nala install -y zsh"
 
 [[library]]
 name = "NVM"
@@ -40,7 +40,7 @@ install_script = "rm -rf $HOME/.oh-my-zsh/custom/plugins/zsh-autosuggestions && 
 
 [[library]]
 name = "Neovim"
-install_script = "wget https://github.com/neovim/neovim/releases/latest/download/nvim-linux64.tar.gz -O - | tar -xz && cd nvim-linux64/bin && sudo mv nvim ~/bin && cd ../../ && rm -rf nvim-linux*"
+install_script = "wget https://github.com/neovim/neovim/releases/latest/download/nvim-linux64.tar.gz && sudo rm -rf /opt/nvim && sudo tar -C /opt -xzf nvim-linux64.tar.gz && rm -rf nvim-linux64*"
 
 [[library]]
 name = "Vim-Plug"
