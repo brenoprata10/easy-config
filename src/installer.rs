@@ -14,17 +14,19 @@ pub struct LibraryConfig {
 
 pub fn install(data: Data) -> Result<(), Box<dyn Error>> {
     for library in data.library {
-        println!("Installing: {}", library.name);
+        eprintln!("\x1b[33m=======================================");
+        eprintln!("\x1b[37mInstalling: \x1b[32m{}", library.name);
 
         let output = runner(&library.install_script).unwrap_or_else(|error| {
             let error_message = String::from(
                 format!("{}: {}\n{}", library.name, library.install_script, error)
             );
-            eprintln!("{error_message}");
+            eprintln!("\x1b[31m{error_message}");
             "Command failed.".to_string()
         });
 
-        println!("\n{output}");
+        eprintln!("\n\x1b[37m{output}");
+        eprintln!("\x1b[32mSuccessfully Installed.");
     }
 
     Ok(())
@@ -36,9 +38,8 @@ fn runner(command: &str) -> Result<String, Box<dyn Error>> {
         .arg(&command)
         .output()?;
 
-
     if !output.status.success() {
-    let stderr = String::from_utf8_lossy(&output.stderr);
+        let stderr = String::from_utf8_lossy(&output.stderr);
         return Err(stderr.into());
     }
 
