@@ -1,6 +1,6 @@
 [[library]]
 name = "Nala"
-install_script = "sudo apt install nala"
+install_script = "sudo apt -y install nala"
 
 [[library]]
 name = "Zoxide"
@@ -8,19 +8,19 @@ install_script = "curl -sS https://raw.githubusercontent.com/ajeetdsouza/zoxide/
 
 [[library]]
 name = "Exa"
-install_script = "sudo nala install exa"
+install_script = "sudo nala -y install exa"
 
 [[library]]
 name = "Bat"
-install_script = "sudo nala install bat"
+install_script = "sudo nala -y install bat"
 
 [[library]]
 name = "RipGrep"
-install_script = "sudo nala install ripgrep"
+install_script = "sudo nala -y install ripgrep"
 
 [[library]]
 name = "ZSH"
-install_script = "sudo nala install zsh"
+install_script = "sudo nala -y install zsh"
 
 [[library]]
 name = "NVM"
