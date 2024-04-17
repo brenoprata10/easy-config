@@ -13,19 +13,25 @@ pub struct LibraryConfig {
 }
 
 pub fn install(data: Data) -> Result<(), Box<dyn Error>> {
+    let error_output = "Command failed";
+
     for library in data.library {
-        eprintln!("\x1b[33m=======================================");
-        eprintln!("\x1b[37mInstalling: \x1b[32m{}", library.name);
+        eprintln!("\x1b[36m=======================================\n");
+        eprintln!("\x1b[0mInstalling: \x1b[32m{}", library.name);
 
         let output = runner(&library.install_script).unwrap_or_else(|error| {
             let error_message = String::from(
                 format!("{}: {}\n{}", library.name, library.install_script, error)
             );
             eprintln!("\x1b[31m{error_message}");
-            "Command failed.".to_string()
+            error_output.to_string()
         });
 
-        eprintln!("\n\x1b[37m{output}");
+        eprintln!("\x1b[0m{output}\n");
+
+        if output != error_output {
+            println!("\x1b[32m{} Installed Successfully!\n", library.name);
+        }
     }
 
     Ok(())

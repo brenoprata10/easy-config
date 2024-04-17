@@ -1,11 +1,10 @@
-use std::{env, error::Error};
+use std::error::Error;
 
 mod toml_utils;
 mod installer;
 
 pub struct Config {
     file_path: String,
-    supress_errors: bool
 }
 
 impl Config {
@@ -17,9 +16,7 @@ impl Config {
             None => return Err("Could not fetch file path.")
         };
 
-        let supress_errors = env::var("SUPRESS_ERRORS").is_ok();
-
-        Ok(Config {file_path, supress_errors})
+        Ok(Config {file_path})
     }
 }
 
