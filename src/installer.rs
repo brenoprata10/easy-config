@@ -1,4 +1,4 @@
-use std::{process::Command, error::Error};
+use std::{error::Error, io::{self, BufRead, BufReader}, process::{ChildStdout, Command, Stdio}};
 use serde::Deserialize;
 
 #[derive(Deserialize)]
@@ -13,42 +13,40 @@ pub struct LibraryConfig {
 }
 
 pub fn install(data: Data) -> Result<(), Box<dyn Error>> {
-    let error_output = "Command failed";
-
     for library in data.library {
         eprintln!("\x1b[36m=======================================\n");
         eprintln!("\x1b[0mInstalling: \x1b[32m{}", library.name);
 
-        let output = runner(&library.install_script).unwrap_or_else(|error| {
-            let error_message = String::from(
-                format!("{}: {}\n{}", library.name, library.install_script, error)
-            );
-            eprintln!("\x1b[31m{error_message}");
-            error_output.to_string()
-        });
+        let output = runner(&library.install_script);
 
-        eprintln!("\x1b[0m{output}\n");
-
-        if output != error_output {
-            println!("\x1b[32m{} Installed Successfully!\n", library.name);
+        match output {
+            Ok(stdout) => {stdout
+                .lines()
+                .filter_map(|line| line.ok())
+                .for_each(|line| eprintln!("\x1b[0m{line}\n"));
+            }
+            Err(error) => {
+                let error_message = String::from(
+                    format!("{}: {}\n{}", library.name, library.install_script, error)
+                    );
+                eprintln!("\x1b[31m{error_message}");
+            }
         }
     }
 
     Ok(())
 }
 
-fn runner(command: &str) -> Result<String, Box<dyn Error>> {
-    let output = Command::new("/bin/sh")
+fn runner(command: &str) -> Result<BufReader<ChildStdout>, Box<dyn Error>> {
+    let stdout = Command::new("/bin/sh")
         .arg("-c")
         .arg(&command)
-        .output()?;
+        .stdout(Stdio::piped())
+        .spawn()?
+        .stdout
+        .ok_or_else(|| io::Error::new(io::ErrorKind::Other,"Could not capture standard output."))?;
 
-    if !output.status.success() {
-        let stderr = String::from_utf8_lossy(&output.stderr);
-        return Err(stderr.into());
-    }
+    let reader = BufReader::new(stdout);
 
-    let stdout = String::from_utf8_lossy(&output.stdout);
-
-    Ok(stdout.to_string())
+    Ok(reader)
 }
