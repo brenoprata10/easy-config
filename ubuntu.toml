@@ -12,7 +12,7 @@ install_script = "sudo nala install -y exa"
 
 [[library]]
 name = "Bat"
-install_script = "sudo nala install -y bat"
+install_script = "sudo nala install -y bat && mkdir -p ~/.local/bin && ln -s /usr/bin/batcat ~/.local/bin/bat"
 
 [[library]]
 name = "RipGrep"
@@ -20,7 +20,7 @@ install_script = "sudo nala install -y ripgrep"
 
 [[library]]
 name = "ZSH"
-install_script = "sudo nala install -y zsh && sudo chsh -s $(which zsh)"
+install_script = "sudo nala install -y zsh && sudo chsh -s $(which zsh) $USER"
 
 [[library]]
 name = "NVM"
