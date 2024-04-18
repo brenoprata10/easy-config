@@ -20,7 +20,7 @@ install_script = "sudo nala install -y ripgrep"
 
 [[library]]
 name = "ZSH"
-install_script = "sudo nala install -y zsh"
+install_script = "sudo nala install -y zsh && sudo chsh -s $(which zsh)"
 
 [[library]]
 name = "NVM"
@@ -28,7 +28,7 @@ install_script = "curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/
 
 [[library]]
 name = "Oh My Zsh"
-install_script = "curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh | bash"
+install_script = "wget https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh | bash"
 
 [[library]]
 name = "Powerlevel10k"
