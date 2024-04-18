@@ -28,7 +28,7 @@ install_script = "curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/
 
 [[library]]
 name = "Oh My Zsh"
-install_script = "wget https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh | bash && rm -rf install.sh"
+install_script = "rm -rf $HOME/.oh-my-zsh && wget -O- https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh | sh && rm -rf install.sh"
 
 [[library]]
 name = "Powerlevel10k"
