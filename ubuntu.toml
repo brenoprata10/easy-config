@@ -56,7 +56,7 @@ install_script = "git config --global credential.helper store && export GIT_EDIT
 
 [[library]]
 name = "Setup Neovim Config"
-install_script = "rm -rf $HOME/.config/nvim && cd $HOME/.config && git clone https://github.com/brenoprata10/nvim.git"
+install_script = "rm -rf $HOME/.config/nvim && cd $HOME/.config && git clone https://github.com/brenoprata10/nvim.git && nvim --headless +PlugInstall +qall"
 
 [[library]]
 name = "Setup .zshrc"
