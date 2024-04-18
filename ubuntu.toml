@@ -4,7 +4,7 @@ install_script = "sudo apt -y install nala"
 
 [[library]]
 name = "Zoxide"
-install_script = "curl -sS https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | bash"
+install_script = "curl -sS https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | bash && rm -rf install.sh"
 
 [[library]]
 name = "Exa"
@@ -55,6 +55,9 @@ name = "Git Config"
 install_script = "git config --global credential.helper store && export GIT_EDITOR=nvim && git config --global core.editor \"nvim\""
 
 [[library]]
-name = "My Neovim Config"
+name = "Setup Neovim Config"
 install_script = "rm -rf $HOME/.config/nvim && cd $HOME/.config && git clone https://github.com/brenoprata10/nvim.git"
 
+[[library]]
+name = "Setup .zshrc"
+install_script = "cd $HOME && wget https://gist.githubusercontent.com/brenoprata10/ce65fcba53eef4c33167a093b6c86259/raw/9b979353f460203912ec179318ab5efc1cc95be0/.zshrc -O .zshrc"
