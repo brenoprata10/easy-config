@@ -24,7 +24,7 @@ install_script = "sudo nala install -y zsh && sudo chsh -s $(which zsh)"
 
 [[library]]
 name = "NVM"
-install_script = "curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash && rm -rf install.sh"
+install_script = "wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash && rm -rf install.sh"
 
 [[library]]
 name = "Oh My Zsh"
