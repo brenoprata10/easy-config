@@ -18,7 +18,7 @@ pub fn install(data: Data) -> Result<(), Box<dyn Error>> {
         eprintln!("\x1b[0mInstalling: \x1b[32m{}", library.name);
 
         for command in library.install_script.split("&&") {
-            eprintln!("\x1b[0mRunning: \x1b[32m{}", command);
+            eprintln!("\x1b[0mRunning: \x1b[32m{}", command .trim());
 
             let output = runner(command);
 
