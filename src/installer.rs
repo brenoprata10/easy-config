@@ -17,19 +17,23 @@ pub fn install(data: Data) -> Result<(), Box<dyn Error>> {
         eprintln!("\x1b[36m=======================================\n");
         eprintln!("\x1b[0mInstalling: \x1b[32m{}", library.name);
 
-        let output = runner(&library.install_script);
+        for command in library.install_script.split("&&") {
+            eprintln!("\x1b[0mRunning: \x1b[32m{}", command);
 
-        match output {
-            Ok(stdout) => {stdout
-                .lines()
-                .filter_map(|line| line.ok())
-                .for_each(|line| eprintln!("\x1b[0m{line}\n"));
-            }
-            Err(error) => {
-                let error_message = String::from(
-                    format!("{}: {}\n{}", library.name, library.install_script, error)
-                    );
-                eprintln!("\x1b[31m{error_message}");
+            let output = runner(command);
+
+            match output {
+                Ok(stdout) => {stdout
+                    .lines()
+                        .filter_map(|line| line.ok())
+                        .for_each(|line| eprintln!("\x1b[0m{line}\n"));
+                }
+                Err(error) => {
+                    let error_message = String::from(
+                        format!("{}: {}\n{}", library.name, library.install_script, error)
+                        );
+                    eprintln!("\x1b[31m{error_message}");
+                }
             }
         }
     }
