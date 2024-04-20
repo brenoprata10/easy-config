@@ -11,24 +11,24 @@ curl -sS https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | 
 
 [[library]]
 name = "Exa"
-install_script = "sudo apt -y exa"
+install_script = "sudo apt -y install exa"
 
 [[library]]
 name = "Bat"
 install_script = """
-sudo apt install -y bat \
+sudo apt -y install bat \
   && mkdir -p ~/.local/bin \
   && ln -s /usr/bin/batcat ~/.local/bin/bat
 """
 
 [[library]]
 name = "RipGrep"
-install_script = "sudo apt install -y ripgrep"
+install_script = "sudo apt -y install ripgrep"
 
 [[library]]
 name = "ZSH"
 install_script = """
-sudo nala install -y zsh \
+sudo apt -y install zsh \
   && sudo chsh -s $(which zsh) $USER
 """
 
@@ -79,7 +79,7 @@ name = "Fira Code"
 install_script = """
 mkdir -p ~/.local/share/fonts/ \
   && wget -q --show-progress https://github.com/ryanoasis/nerd-fonts/releases/download/v3.2.1/FiraCode.zip \ 
-  && unzip FiraCode.zip -d FiraCode \
+  && unzip -qo FiraCode.zip -d FiraCode \
   && sudo mv ./FiraCode/* ~/.local/share/fonts \
   && rm -rf Fira*
 """
@@ -102,7 +102,7 @@ rm -rf $HOME/.config/nvim \
 [[library]]
 name = "Setup .zshrc"
 install_script = """
-wget -q --show-progress https://gist.githubusercontent.com/brenoprata10/ce65fcba53eef4c33167a093b6c86259/raw/a49055aef74f998a3e47bdbedc049dd81e3fff29/.zshrc -O .zshrc \
+wget -q --show-progress https://gist.githubusercontent.com/brenoprata10/ce65fcba53eef4c33167a093b6c86259/raw/22de7905e0ac37be9730be45f9e9068f9a1ddd84/.zshrc -O .zshrc \
   && rm -rf $HOME/.zshrc
   && mv .zshrc $HOME
 """

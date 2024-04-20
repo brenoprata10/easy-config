@@ -14,19 +14,21 @@ pub struct LibraryConfig {
 
 pub fn install(data: Data) -> Result<(), Box<dyn Error>> {
     for library in data.library {
-        eprintln!("\x1b[36m=======================================\n");
-        eprintln!("\x1b[0mInstalling: \x1b[32m{}", library.name);
+        println!("\x1b[36m=======================================\n");
+        println!("\x1b[0mInstalling: \x1b[32m{}", library.name);
 
         for command in library.install_script.split("&&") {
-            eprintln!("\x1b[0mRunning: \x1b[32m{}", command .trim());
+            print!("\x1b[0mRunning: \x1b[32m{}", command.trim());
 
             let output = runner(command);
 
             match output {
-                Ok(stdout) => {stdout
-                    .lines()
+                Ok(stdout) => {
+                    println!(" \x1b[0m........................ \x1b[32mFinished!");
+                    stdout
+                        .lines()
                         .filter_map(|line| line.ok())
-                        .for_each(|line| eprintln!("\x1b[0m{line}\n"));
+                        .for_each(|line| println!("\n\x1b[0m{line}\n"));
                 }
                 Err(error) => {
                     let error_message = String::from(
