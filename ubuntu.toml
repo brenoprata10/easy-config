@@ -102,6 +102,6 @@ rm -rf $HOME/.config/nvim \
 [[library]]
 name = "Setup .zshrc"
 install_script = """
-wget -q --show-progress https://gist.githubusercontent.com/brenoprata10/ce65fcba53eef4c33167a093b6c86259/raw/9c9496b2e184da741e8d8bb54202f147bcbd9002/.zshrc -O .zshrc \
+wget -q --show-progress https://gist.githubusercontent.com/brenoprata10/ce65fcba53eef4c33167a093b6c86259/raw/a67cba98b25f0f37fda9b3a20469bb543902a543/.zshrc -O .zshrc \
   && mv .zshrc $HOME
 """
