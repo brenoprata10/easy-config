@@ -14,7 +14,7 @@ pub struct LibraryConfig {
 
 pub fn install(data: Data) -> Result<(), Box<dyn Error>> {
     for library in data.library {
-        println!("\x1b[36m=======================================\n");
+        println!("\n\x1b[33m=======================================\n");
         println!("\x1b[0mInstalling: \x1b[32m{}", library.name);
 
         for command in library.install_script.split("&&") {
@@ -24,11 +24,13 @@ pub fn install(data: Data) -> Result<(), Box<dyn Error>> {
 
             match output {
                 Ok(stdout) => {
-                    println!(" \x1b[0m........................ \x1b[32mFinished!");
+                    // Forcing blue color, adding the color in the foreach will not color the font
+                    // for some commands
+                    println!("\x1b[36m");
                     stdout
                         .lines()
                         .filter_map(|line| line.ok())
-                        .for_each(|line| println!("\n\x1b[0m{line}\n"));
+                        .for_each(|line| println!("\n{line}\n"));
                 }
                 Err(error) => {
                     let error_message = String::from(
