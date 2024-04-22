@@ -4,9 +4,10 @@ install_script = "sudo apt -y install nala"
 
 [[library]]
 name = "Zoxide"
+allow_async = true
 install_script = """
-curl -sS https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | bash \
-  && rm -rf install.sh
+wget -qO- --show-progress https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh -O install_zoxide.sh | bash \
+  && rm -rf install_zoxide.sh
 """
 
 [[library]]
@@ -35,20 +36,22 @@ sudo apt -y install zsh \
 [[library]]
 name = "NVM"
 install_script = """
-wget -qO- --show-progress https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash \
-  && rm -rf install.sh
+wget -qO- --show-progress https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh -O install_nvm.sh | bash \
+  && rm -rf install_nvm.sh
 """
 
 [[library]]
 name = "Oh My Zsh"
+allow_async = true
 install_script = """
 rm -rf $HOME/.oh-my-zsh \
-  && wget -O- -q --show-progress https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh | sh \
-  && rm -rf install.sh
+  && wget -O- -q --show-progress https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh -O install_oh_my_zsh.sh | sh \
+  && rm -rf install_oh_my_zsh.sh
 """
 
 [[library]]
 name = "Powerlevel10k"
+allow_async = true
 install_script = """
 rm -rf $HOME/.oh-my-zsh/custom/themes/powerlevel10k \
   && git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k
@@ -56,6 +59,7 @@ rm -rf $HOME/.oh-my-zsh/custom/themes/powerlevel10k \
 
 [[library]]
 name = "zsh-autosuggestions"
+allow_async = true
 install_script = """
 rm -rf $HOME/.oh-my-zsh/custom/plugins/zsh-autosuggestions \
   && git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
@@ -63,6 +67,7 @@ rm -rf $HOME/.oh-my-zsh/custom/plugins/zsh-autosuggestions \
 
 [[library]]
 name = "Neovim"
+allow_async = true
 install_script = """
 wget -q --show-progress https://github.com/neovim/neovim/releases/latest/download/nvim-linux64.tar.gz \
   && sudo rm -rf /opt/nvim \ 
@@ -72,10 +77,12 @@ wget -q --show-progress https://github.com/neovim/neovim/releases/latest/downloa
 
 [[library]]
 name = "Vim-Plug"
+allow_async = true
 install_script = "curl -fLo \"${XDG_DATA_HOME:-$HOME/.local/share}\"/nvim/site/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim"
 
 [[library]]
 name = "Fira Code"
+allow_async = true
 install_script = """
 mkdir -p ~/.local/share/fonts/ \
   && wget -q --show-progress https://github.com/ryanoasis/nerd-fonts/releases/download/v3.2.1/FiraCode.zip \ 
@@ -86,6 +93,7 @@ mkdir -p ~/.local/share/fonts/ \
 
 [[library]]
 name = "Git Config"
+allow_async = true
 install_script = """
 git config --global credential.helper store && export GIT_EDITOR=nvim \
   && git config --global core.editor \"nvim\"
@@ -93,6 +101,7 @@ git config --global credential.helper store && export GIT_EDITOR=nvim \
 
 [[library]]
 name = "Setup Neovim Config"
+allow_async = true
 install_script = """
 rm -rf $HOME/.config/nvim \ 
   && git clone https://github.com/brenoprata10/nvim.git \
@@ -101,6 +110,7 @@ rm -rf $HOME/.config/nvim \
 
 [[library]]
 name = "Setup .zshrc"
+allow_async = true
 install_script = """
 wget -q --show-progress https://gist.githubusercontent.com/brenoprata10/ce65fcba53eef4c33167a093b6c86259/raw/a67cba98b25f0f37fda9b3a20469bb543902a543/.zshrc -O .zshrc \
   && mv .zshrc $HOME
