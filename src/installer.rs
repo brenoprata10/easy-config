@@ -1,4 +1,4 @@
-use std::{error::Error, io::{self, BufRead, BufReader}, process::{ChildStdout, Command, Stdio}, thread::{self, JoinHandle}};
+use std::{cmp::Ordering, error::Error, process::Command, thread::{self, JoinHandle}};
 use serde::Deserialize;
 
 #[derive(Deserialize)]
@@ -13,8 +13,22 @@ pub struct LibraryConfig {
     allow_async: Option<bool>,
 }
 
-pub fn install(data: Data) -> Result<(), Box<dyn Error>> {
+pub fn install(mut data: Data) -> Result<(), Box<dyn Error>> {
     let mut thread_handles: Vec<JoinHandle<()>> = Vec::new();
+
+    data.library
+        .sort_unstable_by(
+            |lib1, lib2| {
+                let lib1_allow_async = lib1.allow_async.unwrap_or(false);   
+                let lib2_allow_async = lib2.allow_async.unwrap_or(false);   
+                if !lib1_allow_async && lib2_allow_async
+                    {Ordering::Greater} 
+                else if !lib2_allow_async && lib1_allow_async
+                    {Ordering::Less}
+                else 
+                    {Ordering::Equal}
+            }
+        );
 
     for library in data.library {
         let allow_async = library.allow_async.unwrap_or(false);
@@ -40,41 +54,37 @@ fn install_library_async(library: LibraryConfig) -> JoinHandle<()> {
 }
 
 fn install_library(library: LibraryConfig) {
+    let error_output = "Command failed";
     println!("\n\x1b[33m=======================================\n");
     println!("\x1b[0mInstalling: \x1b[32m{}", library.name);
 
     for command in library.install_script.split("&&") {
-        print!("\x1b[0mRunning: \x1b[32m{}", command.trim());
+        println!("\x1b[0mRunning: \x1b[32m{}", command.trim());
 
-        let output = runner(command);
+        let output = runner(command).unwrap_or_else(|error| {
+            let error_message = String::from(
+                format!("{}: {}\n{}", library.name, library.install_script, error)
+                );
+            eprintln!("\x1b[31m{error_message}");
+            error_output.to_string()
+        });
 
-        match output {
-            Ok(stdout) => {
-                // Forcing blue color, adding the color in the foreach will not color the font
-                // for some commands
-                println!("\x1b[36m");
-                stdout
-                    .lines()
-                    .filter_map(|line| line.ok())
-                    .for_each(|line| println!("\n{line}\n"));
-            }
-            Err(error) => {
-                eprintln!("\x1b[31m{error}");
-            }
-        }
+        println!("\x1b[0m{output}\n");
     }
 }
 
-fn runner(command: &str) -> Result<BufReader<ChildStdout>, Box<dyn Error>> {
-    let stdout = Command::new("/bin/sh")
+fn runner(command: &str) -> Result<String, Box<dyn Error>> {
+    let output = Command::new("/bin/sh")
         .arg("-c")
         .arg(&command)
-        .stdout(Stdio::piped())
-        .spawn()?
-        .stdout
-        .ok_or_else(|| io::Error::new(io::ErrorKind::Other,"Could not capture standard output."))?;
+        .output()?;
 
-    let reader = BufReader::new(stdout);
+    if !output.status.success() {
+        let stderr = String::from_utf8_lossy(&output.stderr);
+        return Err(stderr.into());
+    }
 
-    Ok(reader)
+    let stdout = String::from_utf8_lossy(&output.stdout);
+
+    Ok(stdout.to_string())
 }
