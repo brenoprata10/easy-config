@@ -1,5 +1,5 @@
 use std::{error::Error, process::Command, thread::{self, JoinHandle}, time::Duration};
-use indicatif::ProgressBar;
+use indicatif::{MultiProgress, ProgressBar, ProgressStyle};
 use serde::Deserialize;
 
 #[derive(Deserialize)]
@@ -15,17 +15,17 @@ pub struct LibraryConfig {
 }
 
 pub fn install(data: Data) -> Result<(), Box<dyn Error>> {
-    let libraries: Vec<&LibraryConfig> = data.library.iter().filter(|library| !library.allow_async.unwrap_or(false)).collect();
-    let async_libraries: Vec<&LibraryConfig> = data.library.iter().filter(|library| library.allow_async.unwrap_or(false)).collect();
-    let bar = ProgressBar::new_spinner();
-    bar.enable_steady_tick(Duration::from_millis(100));
-    bar.finish();
+    let libraries: Vec<&LibraryConfig> = data.library
+        .iter()
+        .filter(|library| !library.allow_async.unwrap_or(false))
+        .collect();
+    let async_libraries: Vec<&LibraryConfig> = data.library
+        .iter()
+        .filter(|library| library.allow_async.unwrap_or(false))
+        .collect();
 
     spawn_runner(async_libraries);
-
-    for library in libraries {
-        install_library(library.clone());
-    }
+    install_libraries(libraries);
 
     Ok(())
 }
@@ -36,7 +36,15 @@ fn spawn_runner(libraries: Vec<&LibraryConfig>) {
     for library in libraries {
         let library_data = library.clone();
         let handle = thread::spawn(|| {
+            let bar = ProgressBar::new_spinner();
+            bar.enable_steady_tick(Duration::from_millis(100));
+            bar.set_style(
+                ProgressStyle::with_template("{spinner} {wide_msg} \x1b[33m[{elapsed}]")
+                .unwrap()
+            );
+            bar.set_message(format!("\x1b[0mRunning: \x1b[32m{}", library_data.name));
             install_library(library_data);
+            bar.finish();
         });
         thread_handles.push(handle);
     }
@@ -44,6 +52,22 @@ fn spawn_runner(libraries: Vec<&LibraryConfig>) {
     for handle in thread_handles {
         handle.join().unwrap();
     }
+}
+
+fn install_libraries(libraries: Vec<&LibraryConfig>) {
+    let bar = ProgressBar::new(libraries.len().try_into().unwrap_or(1));
+    bar.enable_steady_tick(Duration::from_millis(100));
+    bar.set_style(
+        ProgressStyle::with_template("[{pos}/{len}] {spinner} {wide_msg} \x1b[33m[{elapsed}]\n{wide_bar:40.cyan/blue}")
+            .unwrap()
+    );
+
+    for library in libraries {
+        bar.set_position(bar.position() + 1);
+        bar.set_message(format!("Running: \x1b[32m{}", library.name));
+        install_library(library.clone());
+    }
+    bar.finish();
 }
 
 
