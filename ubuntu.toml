@@ -1,6 +1,6 @@
 [[library]]
-name = "Nala & Exa & RipGrep"
-install_script = "sudo apt -y install nala exa ripgrep"
+name = "Nala & Exa & RipGrep & Bat & ZSH"
+install_script = "sudo apt -y install nala exa ripgrep bat zsh"
 
 [[library]]
 name = "Zoxide"
@@ -10,18 +10,16 @@ wget -O- -q --show-progress https://raw.githubusercontent.com/ajeetdsouza/zoxide
 """
 
 [[library]]
-name = "Bat"
+name = "Bat Configuration"
 install_script = """
-sudo apt -y install bat \
-  && mkdir -p ~/.local/bin \
+mkdir -p ~/.local/bin \
   && ln -s /usr/bin/batcat ~/.local/bin/bat
 """
 
 [[library]]
-name = "ZSH"
+name = "Set ZSH as default shell"
 install_script = """
-sudo apt -y install zsh \
-  && sudo chsh -s $(which zsh) $USER
+sudo chsh -s $(which zsh) $USER
 """
 
 [[library]]
@@ -35,7 +33,7 @@ wget -O- -q --show-progress https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7
 name = "Oh My Zsh"
 install_script = """
 rm -rf $HOME/.oh-my-zsh \
-  && wget -O- -q --show-progress https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh | bash \
+  && wget -O- -q --show-progress https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh | sh\
   && rm -rf install.sh
 """
 
@@ -98,7 +96,6 @@ rm -rf $HOME/.config/nvim \
 
 [[library]]
 name = "Setup .zshrc"
-allow_async = true
 install_script = """
 wget -q --show-progress https://gist.githubusercontent.com/brenoprata10/ce65fcba53eef4c33167a093b6c86259/raw/a67cba98b25f0f37fda9b3a20469bb543902a543/.zshrc -O .zshrc \
   && mv .zshrc $HOME
