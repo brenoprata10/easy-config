@@ -35,7 +35,7 @@ fn spawn_runner(libraries: Vec<&LibraryConfig>) {
     
     for library in libraries {
         let library_data = library.clone();
-        let handle = thread::spawn(move || {
+        let handle = thread::spawn(|| {
             install_library(library_data);
         });
         thread_handles.push(handle);
