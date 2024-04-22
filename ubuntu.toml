@@ -6,7 +6,7 @@ install_script = "sudo apt -y install nala"
 name = "Zoxide"
 allow_async = true
 install_script = """
-wget -q --show-progress https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh -O install_zoxide.sh | bash \
+wget -O- -q --show-progress https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh -O install_zoxide.sh | bash \
   && rm -rf install_zoxide.sh
 """
 
@@ -36,7 +36,7 @@ sudo apt -y install zsh \
 [[library]]
 name = "NVM"
 install_script = """
-wget -q --show-progress https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh -O install_nvm.sh | bash \
+wget -O- -q --show-progress https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh -O install_nvm.sh | bash \
   && rm -rf install_nvm.sh
 """
 
@@ -45,7 +45,7 @@ name = "Oh My Zsh"
 allow_async = true
 install_script = """
 rm -rf $HOME/.oh-my-zsh \
-  && wget -q --show-progress https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh -O install_oh_my_zsh.sh | sh \
+  && wget -O- -q --show-progress https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh -O install_oh_my_zsh.sh | sh \
   && rm -rf install_oh_my_zsh.sh
 """
 
