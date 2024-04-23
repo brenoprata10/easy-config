@@ -52,6 +52,7 @@ fn spawn_runner(libraries: Vec<&LibraryConfig>, multi_progress_bar: &Arc<Mutex<M
             bar.set_message(format!("\x1b[0mRunning: \x1b[32m{}", library_data.name));
             let added_bar = multi_progress_clone.lock().unwrap().add(bar);
             install_library(library_data);
+            added_bar.set_message(format!("✓ \x1b[0mCompleted"));
             added_bar.finish();
         });
         thread_handles.push(handle);
@@ -84,6 +85,13 @@ fn install_libraries(libraries: Vec<&LibraryConfig>, multi_progress_bar: &Arc<Mu
 fn install_library(library: LibraryConfig) {
     for command in library.install_script.split("&&") {
         runner(command);
+        /*runner(command).unwrap_or_else(|error| {
+            let error_message = String::from(
+                format!("{}: {}\n{}", library.name, library.install_script, error)
+                );
+            eprintln!("\x1b[31m{error_message}");
+            "Command failed".to_string()
+        });*/
     }
 }
 
