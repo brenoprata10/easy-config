@@ -43,14 +43,14 @@ fn spawn_runner(libraries: Vec<&LibraryConfig>, multi_progress_bar: &Arc<Mutex<M
         let multi_progress_clone = Arc::clone(multi_progress_bar);
         let library_data = library.clone();
         let handle = thread::spawn(move || {
-            let bar = ProgressBar::new_spinner();
-            bar.enable_steady_tick(Duration::from_millis(100));
-            bar.set_style(
+            let added_bar = multi_progress_clone.lock().unwrap().add(ProgressBar::new_spinner());
+            added_bar.enable_steady_tick(Duration::from_millis(100));
+            added_bar.set_style(
                 ProgressStyle::with_template("{spinner} {wide_msg} \x1b[33m[{elapsed}]")
                 .unwrap()
             );
-            bar.set_message(format!("\x1b[0mRunning: \x1b[32m{}", library_data.name));
-            let added_bar = multi_progress_clone.lock().unwrap().add(bar);
+            added_bar.set_message(format!("\x1b[0mRunning: \x1b[32m{}", library_data.name));
+            
             install_library(library_data);
             added_bar.set_message(format!("✓ \x1b[0mCompleted"));
             added_bar.finish();
@@ -63,14 +63,13 @@ fn spawn_runner(libraries: Vec<&LibraryConfig>, multi_progress_bar: &Arc<Mutex<M
 }
 
 fn install_libraries(libraries: Vec<&LibraryConfig>, multi_progress_bar: &Arc<Mutex<MultiProgress>>) {
-    let bar = ProgressBar::new(libraries.len().try_into().unwrap_or(1));
-    bar.enable_steady_tick(Duration::from_millis(100));
-    bar.set_style(
-        ProgressStyle::with_template("[{pos}/{len}] {spinner} {wide_msg} \x1b[33m[{elapsed}]\n{wide_bar:40.cyan/blue}")
+    let added_bar = multi_progress_bar.lock().unwrap().add(ProgressBar::new(libraries.len().try_into().unwrap_or(1)));
+    added_bar.enable_steady_tick(Duration::from_millis(100));
+    added_bar.set_style(
+        ProgressStyle::with_template("[{pos}/{len}] {spinner} {wide_msg} \x1b[33m[{elapsed}]")
             .unwrap()
     );
 
-    let added_bar = multi_progress_bar.lock().unwrap().add(bar);
 
     for library in libraries {
         added_bar.set_position(added_bar.position() + 1);
@@ -78,6 +77,7 @@ fn install_libraries(libraries: Vec<&LibraryConfig>, multi_progress_bar: &Arc<Mu
         install_library(library.clone());
     }
 
+    added_bar.set_message(format!("✓ \x1b[0mCompleted"));
     added_bar.finish();
 }
 
