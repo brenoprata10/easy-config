@@ -1,6 +1,7 @@
 use std::{error::Error, process::Command, thread::{self, JoinHandle}, time::Duration};
 use indicatif::{MultiProgress, ProgressBar, ProgressStyle};
 use serde::Deserialize;
+use std::sync::{Arc, Mutex};
 
 #[derive(Deserialize)]
 pub struct Data {
@@ -23,19 +24,25 @@ pub fn install(data: Data) -> Result<(), Box<dyn Error>> {
         .iter()
         .filter(|library| library.allow_async.unwrap_or(false))
         .collect();
+    let multi_progress_bar = Arc::new(Mutex::new(MultiProgress::new()));
 
-    spawn_runner(async_libraries);
-    install_libraries(libraries);
+    let thread_handles = spawn_runner(async_libraries, &multi_progress_bar);
+    install_libraries(libraries, &multi_progress_bar);
+
+    for handle in thread_handles {
+        handle.join().unwrap();
+    }
 
     Ok(())
 }
 
-fn spawn_runner(libraries: Vec<&LibraryConfig>) {
+fn spawn_runner(libraries: Vec<&LibraryConfig>, multi_progress_bar: &Arc<Mutex<MultiProgress>>) -> Vec<JoinHandle<()>> {
     let mut thread_handles: Vec<JoinHandle<()>> = Vec::new();
     
     for library in libraries {
+        let multi_progress_clone = Arc::clone(multi_progress_bar);
         let library_data = library.clone();
-        let handle = thread::spawn(|| {
+        let handle = thread::spawn(move || {
             let bar = ProgressBar::new_spinner();
             bar.enable_steady_tick(Duration::from_millis(100));
             bar.set_style(
@@ -43,18 +50,17 @@ fn spawn_runner(libraries: Vec<&LibraryConfig>) {
                 .unwrap()
             );
             bar.set_message(format!("\x1b[0mRunning: \x1b[32m{}", library_data.name));
+            multi_progress_clone.lock().unwrap().add(bar);
             install_library(library_data);
-            bar.finish();
         });
         thread_handles.push(handle);
     }
 
-    for handle in thread_handles {
-        handle.join().unwrap();
-    }
+    thread_handles
+
 }
 
-fn install_libraries(libraries: Vec<&LibraryConfig>) {
+fn install_libraries(libraries: Vec<&LibraryConfig>, multi_progress_bar: &Arc<Mutex<MultiProgress>>) {
     let bar = ProgressBar::new(libraries.len().try_into().unwrap_or(1));
     bar.enable_steady_tick(Duration::from_millis(100));
     bar.set_style(
@@ -67,7 +73,7 @@ fn install_libraries(libraries: Vec<&LibraryConfig>) {
         bar.set_message(format!("Running: \x1b[32m{}", library.name));
         install_library(library.clone());
     }
-    bar.finish();
+    multi_progress_bar.lock().unwrap().add(bar);
 }
 
 
