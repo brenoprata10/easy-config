@@ -50,8 +50,9 @@ fn spawn_runner(libraries: Vec<&LibraryConfig>, multi_progress_bar: &Arc<Mutex<M
                 .unwrap()
             );
             bar.set_message(format!("\x1b[0mRunning: \x1b[32m{}", library_data.name));
-            multi_progress_clone.lock().unwrap().add(bar);
+            let added_bar = multi_progress_clone.lock().unwrap().add(bar);
             install_library(library_data);
+            added_bar.finish();
         });
         thread_handles.push(handle);
     }
@@ -68,24 +69,21 @@ fn install_libraries(libraries: Vec<&LibraryConfig>, multi_progress_bar: &Arc<Mu
             .unwrap()
     );
 
+    let added_bar = multi_progress_bar.lock().unwrap().add(bar);
+
     for library in libraries {
-        bar.set_position(bar.position() + 1);
-        bar.set_message(format!("Running: \x1b[32m{}", library.name));
+        added_bar.set_position(added_bar.position() + 1);
+        added_bar.set_message(format!("Running: \x1b[32m{}", library.name));
         install_library(library.clone());
     }
-    multi_progress_bar.lock().unwrap().add(bar);
+
+    added_bar.finish();
 }
 
 
 fn install_library(library: LibraryConfig) {
     for command in library.install_script.split("&&") {
-        runner(command).unwrap_or_else(|error| {
-            let error_message = String::from(
-                format!("{}: {}\n{}", library.name, library.install_script, error)
-                );
-            eprintln!("\x1b[31m{error_message}");
-            "Command failed".to_string()
-        });
+        runner(command);
     }
 }
 
