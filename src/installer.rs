@@ -52,7 +52,8 @@ fn spawn_runner(libraries: Vec<&LibraryConfig>, multi_progress_bar: &Arc<Mutex<M
             added_bar.set_message(format!("\x1b[0mRunning: \x1b[32m{}", library_data.name));
             
             install_library(library_data);
-            added_bar.set_message(format!("✓ \x1b[0mCompleted"));
+            added_bar.set_style(ProgressStyle::with_template("{wide_msg}").unwrap());
+            added_bar.set_message(format!("\x1b[32m✓ \x1b[0mCompleted"));
             added_bar.finish();
         });
         thread_handles.push(handle);
@@ -66,10 +67,9 @@ fn install_libraries(libraries: Vec<&LibraryConfig>, multi_progress_bar: &Arc<Mu
     let added_bar = multi_progress_bar.lock().unwrap().add(ProgressBar::new(libraries.len().try_into().unwrap_or(1)));
     added_bar.enable_steady_tick(Duration::from_millis(100));
     added_bar.set_style(
-        ProgressStyle::with_template("[{pos}/{len}] {spinner} {wide_msg} \x1b[33m[{elapsed}]")
+        ProgressStyle::with_template("{spinner} \x1b[33m[{pos}/{len}] \x1b[0m{wide_msg} \x1b[33m[{elapsed}]")
             .unwrap()
     );
-
 
     for library in libraries {
         added_bar.set_position(added_bar.position() + 1);
@@ -77,7 +77,8 @@ fn install_libraries(libraries: Vec<&LibraryConfig>, multi_progress_bar: &Arc<Mu
         install_library(library.clone());
     }
 
-    added_bar.set_message(format!("✓ \x1b[0mCompleted"));
+    added_bar.set_message(format!("\x1b[32m✓ \x1b[0mCompleted"));
+    added_bar.set_style(ProgressStyle::with_template("{wide_msg}").unwrap());
     added_bar.finish();
 }
 
