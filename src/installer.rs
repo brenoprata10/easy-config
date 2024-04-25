@@ -52,11 +52,12 @@ fn spawn_runner(libraries: Vec<&LibraryConfig>, multi_progress_bar: &Arc<Mutex<M
             );
             added_bar.set_message(library_name.clone());
             added_bar.finish();
-            
-            if let Err(error) = install_library(library_data)  {
-                added_bar.set_message(format!("\x1b[31m✗ {} failed. \n  {}:\n  {}", added_bar.message(), library_name, error)); 
-            } else {
-                added_bar.set_message(format!("\x1b[32m✓ {}", added_bar.message()));
+
+            match install_library(library_data) {
+                Ok(()) => added_bar.set_message(format!("\x1b[32m✓ {}", added_bar.message())),
+                Err(error) => added_bar.set_message(
+                    format!("\x1b[31m✗ {} failed. \n  {}:\n  {}", added_bar.message(), library_name, error)
+                )
             }
         });
         thread_handles.push(handle);
