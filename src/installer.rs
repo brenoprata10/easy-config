@@ -64,7 +64,6 @@ fn spawn_runner(libraries: Vec<&LibraryConfig>, multi_progress_bar: &Arc<Mutex<M
     }
 
     thread_handles
-
 }
 
 fn install_libraries(libraries: Vec<&LibraryConfig>, multi_progress_bar: &Arc<Mutex<MultiProgress>>) {
@@ -80,18 +79,19 @@ fn install_libraries(libraries: Vec<&LibraryConfig>, multi_progress_bar: &Arc<Mu
         added_bar.set_position(added_bar.position() + 1);
         added_bar.set_message(library.name.clone());
         if let Err(error) = install_library(library.clone()) {
-            errors.push(format!("\n{}: \n{}", library.name, error.to_string()));
+            errors.push(format!("\n  {}: \n  {}", library.name, error.to_string()));
         }
     }
 
     if errors.len() == 0 {
         added_bar.set_message("\x1b[32m✓ Completed");
     } else {
-        added_bar.set_message(format!("\x1b[31m✗ {} operation(s) failed.", {errors.len()}));
+        added_bar.set_message(format!("\x1b[31m✗ {} operation(s) failed.\n", errors.len()));
+        errors.iter().for_each(|error| {
+            added_bar.set_message(format!("{}{}", added_bar.message(), error));
+        });
     }
     added_bar.finish();
-
-    errors.iter().for_each(|error| eprintln!("\x1b[31m{error}"));
 }
 
 
