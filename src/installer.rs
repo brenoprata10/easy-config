@@ -76,7 +76,7 @@ fn install_libraries(libraries: Vec<&LibraryConfig>, multi_progress_bar: &Arc<Mu
         install_library(library.clone());
     }
 
-    added_bar.set_message(format!("\x1b[32m✓ {}", added_bar.message()));
+    added_bar.set_message(format!("\x1b[32m✓ Completed"));
     added_bar.finish();
 }
 
