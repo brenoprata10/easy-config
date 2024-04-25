@@ -47,7 +47,7 @@ fn spawn_runner(libraries: Vec<&LibraryConfig>, multi_progress_bar: &Arc<Mutex<M
             let added_bar = multi_progress_clone.lock().unwrap().add(ProgressBar::new_spinner());
             added_bar.enable_steady_tick(Duration::from_millis(100));
             added_bar.set_style(
-                ProgressStyle::with_template("{spinner} \x1b[0mRunning: \x1b[32m{wide_msg} \x1b[33m[{elapsed}]")
+                ProgressStyle::with_template("{spinner} \x1b[0mRunning: \x1b[32m{wide_msg}\t")
                     .unwrap()
             );
             added_bar.set_message(library_name.clone());
@@ -56,7 +56,7 @@ fn spawn_runner(libraries: Vec<&LibraryConfig>, multi_progress_bar: &Arc<Mutex<M
             match install_library(library_data) {
                 Ok(()) => added_bar.set_message(format!("\x1b[32m✓ {}", added_bar.message())),
                 Err(error) => added_bar.set_message(
-                    format!("\x1b[31m✗ {} failed. \n  {}:\n  {}", added_bar.message(), library_name, error)
+                    format!("\x1b[31m✗ {} failed. \n\n  {}:\n  {}", added_bar.message(), library_name, error)
                 )
             }
         });
@@ -71,7 +71,7 @@ fn install_libraries(libraries: Vec<&LibraryConfig>, multi_progress_bar: &Arc<Mu
     let added_bar = multi_progress_bar.lock().unwrap().add(ProgressBar::new(libraries.len().try_into().unwrap_or(1)));
     added_bar.enable_steady_tick(Duration::from_millis(100));
     added_bar.set_style(
-        ProgressStyle::with_template("{spinner} \x1b[0mRunning: \x1b[33m[{pos}/{len}] \x1b[0m- \x1b[32m{wide_msg} \x1b[33m[{elapsed}]")
+        ProgressStyle::with_template("{spinner} \x1b[0mRunning: \x1b[33m[{pos}/{len}] \x1b[0m- \x1b[32m{wide_msg}\t")
             .unwrap()
     );
 
