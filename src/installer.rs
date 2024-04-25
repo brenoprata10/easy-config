@@ -43,17 +43,21 @@ fn spawn_runner(libraries: Vec<&LibraryConfig>, multi_progress_bar: &Arc<Mutex<M
         let multi_progress_clone = Arc::clone(multi_progress_bar);
         let library_data = library.clone();
         let handle = thread::spawn(move || {
+            let library_name = library_data.name.clone();
             let added_bar = multi_progress_clone.lock().unwrap().add(ProgressBar::new_spinner());
             added_bar.enable_steady_tick(Duration::from_millis(100));
             added_bar.set_style(
                 ProgressStyle::with_template("{spinner} \x1b[0mRunning: \x1b[32m{wide_msg} \x1b[33m[{elapsed}]")
                     .unwrap()
             );
-            added_bar.set_message(library_data.name.clone());
-            
-            install_library(library_data);
-            added_bar.set_message(format!("\x1b[32m✓ {}", added_bar.message()));
+            added_bar.set_message(library_name.clone());
             added_bar.finish();
+            
+            if let Err(error) = install_library(library_data)  {
+                added_bar.set_message(format!("\x1b[31m✗ {} failed. \n  {}:\n  {}", added_bar.message(), library_name, error)); 
+            } else {
+                added_bar.set_message(format!("\x1b[32m✓ {}", added_bar.message()));
+            }
         });
         thread_handles.push(handle);
     }
@@ -63,35 +67,39 @@ fn spawn_runner(libraries: Vec<&LibraryConfig>, multi_progress_bar: &Arc<Mutex<M
 }
 
 fn install_libraries(libraries: Vec<&LibraryConfig>, multi_progress_bar: &Arc<Mutex<MultiProgress>>) {
+    let mut errors: Vec<String> = Vec::new();
     let added_bar = multi_progress_bar.lock().unwrap().add(ProgressBar::new(libraries.len().try_into().unwrap_or(1)));
     added_bar.enable_steady_tick(Duration::from_millis(100));
     added_bar.set_style(
-        ProgressStyle::with_template("{spinner} \x1b[33m[{pos}/{len}] \x1b[0mRunning: \x1b[32m{wide_msg} \x1b[33m[{elapsed}]")
+        ProgressStyle::with_template("{spinner} \x1b[0mRunning: \x1b[33m[{pos}/{len}] \x1b[0m- \x1b[32m{wide_msg} \x1b[33m[{elapsed}]")
             .unwrap()
     );
 
     for library in libraries {
         added_bar.set_position(added_bar.position() + 1);
         added_bar.set_message(library.name.clone());
-        install_library(library.clone());
+        if let Err(error) = install_library(library.clone()) {
+            errors.push(format!("\n{}: \n{}", library.name, error.to_string()));
+        }
     }
 
-    added_bar.set_message(format!("\x1b[32m✓ Completed"));
+    if errors.len() == 0 {
+        added_bar.set_message("\x1b[32m✓ Completed");
+    } else {
+        added_bar.set_message(format!("\x1b[31m✗ {} operation(s) failed.", {errors.len()}));
+    }
     added_bar.finish();
+
+    errors.iter().for_each(|error| eprintln!("\x1b[31m{error}"));
 }
 
 
-fn install_library(library: LibraryConfig) {
+fn install_library(library: LibraryConfig) -> Result<(), Box<dyn Error>> {
     for command in library.install_script.split("&&") {
-        runner(command);
-        /*runner(command).unwrap_or_else(|error| {
-            let error_message = String::from(
-                format!("{}: {}\n{}", library.name, library.install_script, error)
-                );
-            eprintln!("\x1b[31m{error_message}");
-            "Command failed".to_string()
-        });*/
+        runner(command)?;
     }
+
+    Ok(())
 }
 
 fn runner(command: &str) -> Result<String, Box<dyn Error>> {
