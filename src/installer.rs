@@ -15,6 +15,29 @@ pub struct LibraryConfig {
     allow_async: Option<bool>,
 }
 
+enum ProgressBarType {
+    Bar(u64),
+    Spinner
+}
+
+struct LibraryInstallProgressBar {
+    progress_bar: ProgressBar,
+}
+
+impl LibraryInstallProgressBar {
+    fn new(template: &str, progress_bar_type: ProgressBarType) -> LibraryInstallProgressBar {
+        let progress_bar = match progress_bar_type {
+            ProgressBarType::Spinner => ProgressBar::new_spinner(),
+            ProgressBarType::Bar(length) => ProgressBar::new(length)
+        };
+        progress_bar.set_style(ProgressStyle::with_template(template).unwrap());
+
+        LibraryInstallProgressBar {
+            progress_bar
+        }
+    }
+}
+
 pub fn install(data: Data) -> Result<(), Box<dyn Error>> {
     let libraries: Vec<&LibraryConfig> = data.library
         .iter()
@@ -44,21 +67,23 @@ fn spawn_runner(libraries: Vec<&LibraryConfig>, multi_progress_bar: &Arc<Mutex<M
         let library_data = library.clone();
         let handle = thread::spawn(move || {
             let library_name = library_data.name.clone();
-            let added_bar = multi_progress_clone.lock().unwrap().add(ProgressBar::new_spinner());
-            added_bar.enable_steady_tick(Duration::from_millis(100));
-            added_bar.set_style(
-                ProgressStyle::with_template("{spinner} \x1b[0mRunning: \x1b[32m{wide_msg}\t")
-                    .unwrap()
+            let library_progress_bar = LibraryInstallProgressBar::new(
+                "{spinner} \x1b[0mRunning: \x1b[32m{wide_msg}\t",
+                ProgressBarType::Spinner
             );
-            added_bar.set_message(library_name.clone());
-            added_bar.finish();
+            let progress_bar = multi_progress_clone.lock().unwrap().add(
+                library_progress_bar.progress_bar
+            );
+            progress_bar.enable_steady_tick(Duration::from_millis(100));
+            progress_bar.set_message(library_name.clone());
 
             match install_library(library_data) {
-                Ok(()) => added_bar.set_message(format!("\x1b[32m✓ {}", added_bar.message())),
-                Err(error) => added_bar.set_message(
-                    format!("\x1b[31m✗ {} failed. \n\n  {}:\n  {}", added_bar.message(), library_name, error)
+                Ok(()) => progress_bar.set_message(format!("\x1b[32m✓ {}", progress_bar.message())),
+                Err(error) => progress_bar.set_message(
+                    format!("\x1b[31m✗ {} failed. \n\n  {}:\n  {}", progress_bar.message(), library_name, error)
                 )
-            }
+            };
+            progress_bar.finish();
         });
         thread_handles.push(handle);
     }
@@ -68,32 +93,33 @@ fn spawn_runner(libraries: Vec<&LibraryConfig>, multi_progress_bar: &Arc<Mutex<M
 
 fn install_libraries(libraries: Vec<&LibraryConfig>, multi_progress_bar: &Arc<Mutex<MultiProgress>>) {
     let mut errors: Vec<String> = Vec::new();
-    let added_bar = multi_progress_bar.lock().unwrap().add(ProgressBar::new(libraries.len().try_into().unwrap_or(1)));
-    added_bar.enable_steady_tick(Duration::from_millis(100));
-    added_bar.set_style(
-        ProgressStyle::with_template("{spinner} \x1b[0mRunning: \x1b[33m[{pos}/{len}] \x1b[0m- \x1b[32m{wide_msg}\t")
-            .unwrap()
+    let library_progress_bar = LibraryInstallProgressBar::new(
+        "{spinner} \x1b[0mRunning: \x1b[33m[{pos}/{len}] \x1b[0m- \x1b[32m{wide_msg}\t",
+        ProgressBarType::Bar(libraries.len() as u64)
     );
+    let progress_bar = multi_progress_bar.lock().unwrap().add(
+        library_progress_bar.progress_bar
+    );
+    progress_bar.enable_steady_tick(Duration::from_millis(100));
 
     for library in libraries {
-        added_bar.set_position(added_bar.position() + 1);
-        added_bar.set_message(library.name.clone());
+        progress_bar.set_position(progress_bar.position() + 1);
+        progress_bar.set_message(library.name.clone());
         if let Err(error) = install_library(library.clone()) {
             errors.push(format!("\n  {}: \n  {}", library.name, error.to_string()));
         }
     }
 
     if errors.len() == 0 {
-        added_bar.set_message("\x1b[32m✓ Completed");
+        progress_bar.set_message("\x1b[32m✓ Completed");
     } else {
-        added_bar.set_message(format!("\x1b[31m✗ {} operation(s) failed.\n", errors.len()));
+        progress_bar.set_message(format!("\x1b[31m✗ {} operation(s) failed.\n", errors.len()));
         errors.iter().for_each(|error| {
-            added_bar.set_message(format!("{}{}", added_bar.message(), error));
+            progress_bar.set_message(format!("{}{}", progress_bar.message(), error));
         });
     }
-    added_bar.finish();
+    progress_bar.finish();
 }
-
 
 fn install_library(library: LibraryConfig) -> Result<(), Box<dyn Error>> {
     for command in library.install_script.split("&&") {
