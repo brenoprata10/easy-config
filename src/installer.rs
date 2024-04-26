@@ -1,4 +1,4 @@
-use std::{error::Error, process::Command, thread::{self, JoinHandle}, time::Duration};
+use std::{error::Error, io::Stdin, process::{Command, Stdio}, thread::{self, spawn, JoinHandle}, time::Duration};
 use indicatif::{MultiProgress, ProgressBar, ProgressStyle};
 use serde::Deserialize;
 use std::sync::{Arc, Mutex};
