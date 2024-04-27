@@ -1,11 +1,9 @@
 [[library]]
 name = "Nala & Exa & RipGrep & Bat & ZSH"
-group = "apt binaries"
 install_script = "sudo apt -y install nala exa ripgrep bat zsh"
 
 [[library]]
 name = "Bat Configuration"
-group = "apt binaries"
 install_script = """
 mkdir -p ~/.local/bin \
   && ln -s /usr/bin/batcat ~/.local/bin/bat
@@ -13,7 +11,6 @@ mkdir -p ~/.local/bin \
 
 [[library]]
 name = "Set ZSH as default shell"
-group = "apt binaries"
 install_script = """
 sudo chsh -s $(which zsh) $USER
 """
@@ -38,7 +35,6 @@ wget -O- -q --show-progress https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7
 
 [[library]]
 name = "Oh My Zsh"
-group = "oh my zsh setup"
 install_script = """
 rm -rf $HOME/.oh-my-zsh \
   && wget -O- -q --show-progress https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh > oh-my-zsh.sh \
@@ -48,7 +44,6 @@ rm -rf $HOME/.oh-my-zsh \
 
 [[library]]
 name = "Powerlevel10k"
-group = "oh my zsh setup"
 install_script = """
 rm -rf $HOME/.oh-my-zsh/custom/themes/powerlevel10k \
   && git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k
@@ -56,7 +51,6 @@ rm -rf $HOME/.oh-my-zsh/custom/themes/powerlevel10k \
 
 [[library]]
 name = "zsh-autosuggestions"
-group = "oh my zsh setup"
 install_script = """
 rm -rf $HOME/.oh-my-zsh/custom/plugins/zsh-autosuggestions \
   && git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
