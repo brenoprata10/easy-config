@@ -1,4 +1,4 @@
-use std::{error::Error, io::Stdin, process::{Command, Stdio}, thread::{self, spawn, JoinHandle}, time::Duration};
+use std::{error::Error, process::Command, thread::{self, JoinHandle}, time::Duration};
 use indicatif::{MultiProgress, ProgressBar, ProgressStyle};
 use serde::Deserialize;
 use std::sync::{Arc, Mutex};
@@ -10,7 +10,9 @@ pub struct Data {
 
 #[derive(Deserialize, Clone)]
 pub struct LibraryConfig {
+    id: Option<String>,
     name: String,
+    group: Option<String>,
     install_script: String,
     allow_async: Option<bool>,
 }
@@ -77,12 +79,18 @@ fn spawn_runner(libraries: Vec<&LibraryConfig>, multi_progress_bar: &Arc<Mutex<M
             progress_bar.enable_steady_tick(Duration::from_millis(100));
             progress_bar.set_message(library_name.clone());
 
-            match install_library(library_data) {
-                Ok(()) => progress_bar.set_message(format!("\x1b[32m✓ {}", progress_bar.message())),
-                Err(error) => progress_bar.set_message(
-                    format!("\x1b[31m✗ {} failed. \n\n  {}:\n  {}", progress_bar.message(), library_name, error)
+            let install_result = install_library(library_data);
+            let final_message = match install_result {
+                Ok(()) => format!("\x1b[32m✓ {}", progress_bar.message()),
+                Err(error) => format!(
+                    "\x1b[31m✗ {} failed. \n\n  {}:\n  {}",
+                    progress_bar.message(), 
+                    library_name, 
+                    error
                 )
             };
+
+            progress_bar.set_message(final_message);
             progress_bar.finish();
         });
         thread_handles.push(handle);
