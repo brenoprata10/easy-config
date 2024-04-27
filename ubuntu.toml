@@ -20,20 +20,25 @@ sudo chsh -s $(which zsh) $USER
 
 [[library]]
 name = "Zoxide"
+allow_async = true
 install_script = """
-wget -O- -q --show-progress https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | bash \
-  && rm -rf install.sh
+wget -O- -q --show-progress https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh > zoxide_install.sh \
+  && bash zoxide_install.sh \
+  && rm -rf zoxide_install.sh
 """
 
 [[library]]
 name = "NVM"
+allow_async = true
 install_script = """
-wget -O- -q --show-progress https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash \
-  && rm -rf install.sh
+wget -O- -q --show-progress https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh > nvm_install.sh \
+  && bash nvm_install.sh \
+  && rm -rf nvm_install.sh
 """
 
 [[library]]
 name = "Oh My Zsh"
+group = "oh my zsh setup"
 install_script = """
 rm -rf $HOME/.oh-my-zsh \
   && wget -O- -q --show-progress https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh | sh\
@@ -42,6 +47,7 @@ rm -rf $HOME/.oh-my-zsh \
 
 [[library]]
 name = "Powerlevel10k"
+group = "oh my zsh setup"
 install_script = """
 rm -rf $HOME/.oh-my-zsh/custom/themes/powerlevel10k \
   && git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k
@@ -49,6 +55,7 @@ rm -rf $HOME/.oh-my-zsh/custom/themes/powerlevel10k \
 
 [[library]]
 name = "zsh-autosuggestions"
+group = "oh my zsh setup"
 install_script = """
 rm -rf $HOME/.oh-my-zsh/custom/plugins/zsh-autosuggestions \
   && git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
