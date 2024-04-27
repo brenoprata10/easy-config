@@ -41,8 +41,8 @@ name = "Oh My Zsh"
 group = "oh my zsh setup"
 install_script = """
 rm -rf $HOME/.oh-my-zsh \
-  && wget -O- -q --show-progress https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh | sh\
-  && rm -rf install.sh
+  && wget -O- -q --show-progress https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh > oh-my-zsh.sh \
+  && rm -rf oh-my-zsh.sh
 """
 
 [[library]]
