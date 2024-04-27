@@ -1,4 +1,4 @@
-use std::{error::Error, process::Command, thread::{self, JoinHandle}, time::Duration};
+use std::{collections::HashSet, error::Error, process::Command, thread::{self, JoinHandle}, time::Duration};
 use indicatif::{MultiProgress, ProgressBar, ProgressStyle};
 use serde::Deserialize;
 use std::sync::{Arc, Mutex};
@@ -10,7 +10,6 @@ pub struct Data {
 
 #[derive(Deserialize, Clone)]
 pub struct LibraryConfig {
-    id: Option<String>,
     name: String,
     group: Option<String>,
     install_script: String,
@@ -43,15 +42,33 @@ impl LibraryInstallProgressBar {
 pub fn install(data: Data) -> Result<(), Box<dyn Error>> {
     let libraries: Vec<&LibraryConfig> = data.library
         .iter()
-        .filter(|library| !library.allow_async.unwrap_or(false))
+        .filter(|library| !library.allow_async.unwrap_or(false) && library.group.is_none())
         .collect();
     let async_libraries: Vec<&LibraryConfig> = data.library
         .iter()
-        .filter(|library| library.allow_async.unwrap_or(false))
+        .filter(|library| library.allow_async.unwrap_or(false) && library.group.is_none())
+        .collect();
+    let grouped_libraries: HashSet<String> = data.library
+        .iter()
+        .filter_map(|library| library.group.clone())
         .collect();
     let multi_progress_bar = Arc::new(Mutex::new(MultiProgress::new()));
 
-    let thread_handles = spawn_runner(async_libraries, &multi_progress_bar);
+    let mut thread_handles: Vec<JoinHandle<()>> = Vec::new();
+    let async_thread_handles = &mut spawn_runner(async_libraries, &multi_progress_bar);
+    thread_handles.append(async_thread_handles);
+
+    for group in grouped_libraries {
+        let group_libraries: Vec<LibraryConfig> = data.library.clone()
+            .into_iter()
+            .filter(|library| library.group.clone().is_some_and(|library_group| library_group == group))
+            .collect();
+        let multi_progress_clone = Arc::clone(&multi_progress_bar);
+        let group_thread_handle = thread::spawn(move || {
+            install_libraries(group_libraries.iter().collect(), &multi_progress_clone);
+        });
+        thread_handles.push(group_thread_handle);
+    }
     install_libraries(libraries, &multi_progress_bar);
 
     for handle in thread_handles {

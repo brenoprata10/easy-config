@@ -1,16 +1,11 @@
 [[library]]
 name = "Nala & Exa & RipGrep & Bat & ZSH"
+group = "apt binaries"
 install_script = "sudo apt -y install nala exa ripgrep bat zsh"
 
 [[library]]
-name = "Zoxide"
-install_script = """
-wget -O- -q --show-progress https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | bash \
-  && rm -rf install.sh
-"""
-
-[[library]]
 name = "Bat Configuration"
+group = "apt binaries"
 install_script = """
 mkdir -p ~/.local/bin \
   && ln -s /usr/bin/batcat ~/.local/bin/bat
@@ -18,8 +13,16 @@ mkdir -p ~/.local/bin \
 
 [[library]]
 name = "Set ZSH as default shell"
+group = "apt binaries"
 install_script = """
 sudo chsh -s $(which zsh) $USER
+"""
+
+[[library]]
+name = "Zoxide"
+install_script = """
+wget -O- -q --show-progress https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | bash \
+  && rm -rf install.sh
 """
 
 [[library]]
@@ -49,6 +52,13 @@ name = "zsh-autosuggestions"
 install_script = """
 rm -rf $HOME/.oh-my-zsh/custom/plugins/zsh-autosuggestions \
   && git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
+"""
+
+[[library]]
+name = "Setup .zshrc"
+install_script = """
+wget -q --show-progress https://gist.githubusercontent.com/brenoprata10/ce65fcba53eef4c33167a093b6c86259/raw/58dcb2b7895a2e29ff96f21c667aba546ad8fbf3/.zshrc -O .zshrc \
+  && mv .zshrc $HOME
 """
 
 [[library]]
@@ -92,11 +102,4 @@ install_script = """
 rm -rf $HOME/.config/nvim \ 
   && git clone https://github.com/brenoprata10/nvim.git \
   && mv nvim $HOME/.config
-"""
-
-[[library]]
-name = "Setup .zshrc"
-install_script = """
-wget -q --show-progress https://gist.githubusercontent.com/brenoprata10/ce65fcba53eef4c33167a093b6c86259/raw/58dcb2b7895a2e29ff96f21c667aba546ad8fbf3/.zshrc -O .zshrc \
-  && mv .zshrc $HOME
 """
