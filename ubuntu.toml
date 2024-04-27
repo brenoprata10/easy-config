@@ -42,7 +42,7 @@ group = "oh my zsh setup"
 install_script = """
 rm -rf $HOME/.oh-my-zsh \
   && wget -O- -q --show-progress https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh > oh-my-zsh.sh \
-  && bash oh-my-zsh.sh \
+  && bash oh-my-zsh.sh --unattended \
   && rm -rf oh-my-zsh.sh
 """
 
