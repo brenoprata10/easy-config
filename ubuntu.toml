@@ -29,7 +29,7 @@ name = "NVM"
 allow_async = true
 install_script = """
 wget -O- -q --show-progress https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh > nvm_install.sh \
-  && bash nvm_install.sh \
+  && XDG_CONFIG_HOME=$HOME/.nvm PROFILE=/dev/null bash nvm_install.sh \
   && rm -rf nvm_install.sh
 """
 
