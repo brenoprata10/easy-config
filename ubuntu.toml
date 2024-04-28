@@ -37,7 +37,7 @@ wget -O- -q --show-progress https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7
 name = "Install Node 18"
 group = "NVM Setup"
 install_script = """
-. $HOME/.nvm/nvm.sh
+. $HOME/nvm/nvm.sh
 nvm install 18
 
 """
