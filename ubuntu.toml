@@ -26,20 +26,11 @@ wget -O- -q --show-progress https://raw.githubusercontent.com/ajeetdsouza/zoxide
 
 [[library]]
 name = "NVM"
-group = "NVM Setup"
+allow_async = true
 install_script = """
 wget -O- -q --show-progress https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh > nvm_install.sh \
   && XDG_CONFIG_HOME=$HOME PROFILE=/dev/null bash nvm_install.sh \
   && rm -rf nvm_install.sh
-"""
-
-[[library]]
-name = "Install Node 18"
-group = "NVM Setup"
-install_script = """
-. $HOME/nvm/nvm.sh
-nvm install 18
-
 """
 
 [[library]]
