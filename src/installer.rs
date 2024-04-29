@@ -21,6 +21,30 @@ enum ProgressBarType {
     Spinner
 }
 
+struct InstallerConfig<'a, 'b> {
+    libraries: Vec<&'a LibraryConfig>, 
+    multi_progress_bar: &'b Arc<Mutex<MultiProgress>>,
+    groups: Option<HashSet<String>>, 
+}
+
+impl<'a, 'b> InstallerConfig<'a, 'b> {
+    fn new(libraries: Vec<&'a LibraryConfig>, multi_progress_bar: &'b Arc<Mutex<MultiProgress>>) -> InstallerConfig<'a, 'b> {
+        InstallerConfig {
+            libraries,
+            multi_progress_bar,
+            groups: None,
+        }
+    }
+
+    fn with_groups(libraries: Vec<&'a LibraryConfig>, multi_progress_bar: &'b Arc<Mutex<MultiProgress>>, groups: HashSet<String>) -> InstallerConfig<'a, 'b> {
+        InstallerConfig {
+            libraries,
+            multi_progress_bar,
+            groups: Some(groups),
+        }
+    }
+}
+
 struct LibraryInstallProgressBar {
     progress_bar: ProgressBar,
 }
@@ -54,14 +78,25 @@ pub fn install(data: Data) -> Result<(), Box<dyn Error>> {
         .collect();
     let multi_progress_bar = Arc::new(Mutex::new(MultiProgress::new()));
 
-    let async_thread_handles = install_async(async_libraries, &multi_progress_bar);
-    let group_thread_handles = install_groups(&data.library, grouped_libraries, &multi_progress_bar);
+    let async_thread_handles = install_async(
+        InstallerConfig::new(libraries, &multi_progress_bar)
+    );
+    let group_thread_handles = install_groups(
+        InstallerConfig::with_groups(
+            data.library.iter().collect(),
+            &multi_progress_bar,
+            grouped_libraries, 
+        )
+    );
+
+    install_libraries(
+        InstallerConfig::new(libraries, &multi_progress_bar)
+    );
+
     let thread_handles: Vec<JoinHandle<()>> = vec![
         async_thread_handles, 
         group_thread_handles
     ].into_iter().flatten().collect();
-
-    install_libraries(libraries, &multi_progress_bar);
 
     for handle in thread_handles {
         handle.join().unwrap();
@@ -70,23 +105,28 @@ pub fn install(data: Data) -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
-fn install_groups(
-    libraries: &Vec<LibraryConfig>, 
-    groups: HashSet<String>, 
-    multi_progress_bar: &Arc<Mutex<MultiProgress>>
-) -> Vec<JoinHandle<()>> {
+fn install_groups(config: InstallerConfig) -> Vec<JoinHandle<()>> {
     let mut thread_handles: Vec<JoinHandle<()>> = Vec::new();
 
-    for group in groups {
-        let group_libraries: Vec<LibraryConfig> = libraries.clone()
+    if config.groups.is_none() {
+        return vec![];
+    }
+
+    for group in config.groups.unwrap_or(HashSet::new()) {
+        let group_libraries: Vec<LibraryConfig> = config.libraries.clone()
             .into_iter()
             .filter(
                 |library| library.group.clone().is_some_and(|library_group| library_group == group)
             )
             .collect();
-        let multi_progress_clone = Arc::clone(&multi_progress_bar);
+        let multi_progress_clone = Arc::clone(&config.multi_progress_bar);
         let group_thread_handle = thread::spawn(move || {
-            install_libraries(group_libraries.iter().collect(), &multi_progress_clone);
+            install_libraries(
+                InstallerConfig::new(
+                    group_libraries.iter().collect(), 
+                    &multi_progress_clone
+                )
+            );
         });
         thread_handles.push(group_thread_handle);
     }
@@ -94,11 +134,11 @@ fn install_groups(
     thread_handles
 }
 
-fn install_async(libraries: Vec<&LibraryConfig>, multi_progress_bar: &Arc<Mutex<MultiProgress>>) -> Vec<JoinHandle<()>> {
+fn install_async(config: InstallerConfig) -> Vec<JoinHandle<()>> {
     let mut thread_handles: Vec<JoinHandle<()>> = Vec::new();
     
-    for library in libraries {
-        let multi_progress_clone = Arc::clone(multi_progress_bar);
+    for library in config.libraries {
+        let multi_progress_clone = Arc::clone(config.multi_progress_bar);
         let library_data = library.clone();
         let handle = thread::spawn(move || {
             let library_name = library_data.name.clone();
@@ -132,18 +172,18 @@ fn install_async(libraries: Vec<&LibraryConfig>, multi_progress_bar: &Arc<Mutex<
     thread_handles
 }
 
-fn install_libraries(libraries: Vec<&LibraryConfig>, multi_progress_bar: &Arc<Mutex<MultiProgress>>) {
+fn install_libraries(config: InstallerConfig) {
     let mut errors: Vec<String> = Vec::new();
     let library_progress_bar = LibraryInstallProgressBar::new(
         "{spinner} \x1b[0mRunning: \x1b[33m[{pos}/{len}] \x1b[0m- \x1b[32m{wide_msg}\t",
-        ProgressBarType::Bar(libraries.len() as u64)
+        ProgressBarType::Bar(config.libraries.len() as u64)
     );
-    let progress_bar = multi_progress_bar.lock().unwrap().add(
+    let progress_bar = config.multi_progress_bar.lock().unwrap().add(
         library_progress_bar.progress_bar
     );
     progress_bar.enable_steady_tick(Duration::from_millis(100));
 
-    for library in libraries {
+    for library in config.libraries {
         progress_bar.set_position(progress_bar.position() + 1);
         progress_bar.set_message(library.name.clone());
         if let Err(error) = install_library(library.clone(), &progress_bar) {
