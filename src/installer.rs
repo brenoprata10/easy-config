@@ -54,21 +54,13 @@ pub fn install(data: Data) -> Result<(), Box<dyn Error>> {
         .collect();
     let multi_progress_bar = Arc::new(Mutex::new(MultiProgress::new()));
 
-    let mut thread_handles: Vec<JoinHandle<()>> = Vec::new();
-    let async_thread_handles = &mut spawn_runner(async_libraries, &multi_progress_bar);
-    thread_handles.append(async_thread_handles);
+    let async_thread_handles = install_async(async_libraries, &multi_progress_bar);
+    let group_thread_handles = install_groups(&data.library, grouped_libraries, &multi_progress_bar);
+    let thread_handles: Vec<JoinHandle<()>> = vec![
+        async_thread_handles, 
+        group_thread_handles
+    ].into_iter().flatten().collect();
 
-    for group in grouped_libraries {
-        let group_libraries: Vec<LibraryConfig> = data.library.clone()
-            .into_iter()
-            .filter(|library| library.group.clone().is_some_and(|library_group| library_group == group))
-            .collect();
-        let multi_progress_clone = Arc::clone(&multi_progress_bar);
-        let group_thread_handle = thread::spawn(move || {
-            install_libraries(group_libraries.iter().collect(), &multi_progress_clone);
-        });
-        thread_handles.push(group_thread_handle);
-    }
     install_libraries(libraries, &multi_progress_bar);
 
     for handle in thread_handles {
@@ -78,7 +70,31 @@ pub fn install(data: Data) -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
-fn spawn_runner(libraries: Vec<&LibraryConfig>, multi_progress_bar: &Arc<Mutex<MultiProgress>>) -> Vec<JoinHandle<()>> {
+fn install_groups(
+    libraries: &Vec<LibraryConfig>, 
+    groups: HashSet<String>, 
+    multi_progress_bar: &Arc<Mutex<MultiProgress>>
+) -> Vec<JoinHandle<()>> {
+    let mut thread_handles: Vec<JoinHandle<()>> = Vec::new();
+
+    for group in groups {
+        let group_libraries: Vec<LibraryConfig> = libraries.clone()
+            .into_iter()
+            .filter(
+                |library| library.group.clone().is_some_and(|library_group| library_group == group)
+            )
+            .collect();
+        let multi_progress_clone = Arc::clone(&multi_progress_bar);
+        let group_thread_handle = thread::spawn(move || {
+            install_libraries(group_libraries.iter().collect(), &multi_progress_clone);
+        });
+        thread_handles.push(group_thread_handle);
+    }
+
+    thread_handles
+}
+
+fn install_async(libraries: Vec<&LibraryConfig>, multi_progress_bar: &Arc<Mutex<MultiProgress>>) -> Vec<JoinHandle<()>> {
     let mut thread_handles: Vec<JoinHandle<()>> = Vec::new();
     
     for library in libraries {
@@ -96,7 +112,7 @@ fn spawn_runner(libraries: Vec<&LibraryConfig>, multi_progress_bar: &Arc<Mutex<M
             progress_bar.enable_steady_tick(Duration::from_millis(100));
             progress_bar.set_message(library_name.clone());
 
-            let install_result = install_library(library_data);
+            let install_result = install_library(library_data, &progress_bar);
             let final_message = match install_result {
                 Ok(()) => format!("\x1b[32m✓ {}", progress_bar.message()),
                 Err(error) => format!(
@@ -130,7 +146,7 @@ fn install_libraries(libraries: Vec<&LibraryConfig>, multi_progress_bar: &Arc<Mu
     for library in libraries {
         progress_bar.set_position(progress_bar.position() + 1);
         progress_bar.set_message(library.name.clone());
-        if let Err(error) = install_library(library.clone()) {
+        if let Err(error) = install_library(library.clone(), &progress_bar) {
             errors.push(format!("\n  {}: \n  {}", library.name, error.to_string()));
         }
     }
@@ -146,10 +162,14 @@ fn install_libraries(libraries: Vec<&LibraryConfig>, multi_progress_bar: &Arc<Mu
     progress_bar.finish();
 }
 
-fn install_library(library: LibraryConfig) -> Result<(), Box<dyn Error>> {
+fn install_library(library: LibraryConfig, progress_bar: &ProgressBar) -> Result<(), Box<dyn Error>> {
+    let initial_progress_bar_message = progress_bar.message();
     for command in library.install_script.split("&&") {
+        progress_bar.set_message(format!("{}\n  \x1b[36mExec  => {}", initial_progress_bar_message, command.trim()));
         runner(command)?;
     }
+
+    progress_bar.set_message(initial_progress_bar_message);
 
     Ok(())
 }
