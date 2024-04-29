@@ -28,7 +28,10 @@ struct InstallerConfig<'a, 'b> {
 }
 
 impl<'a, 'b> InstallerConfig<'a, 'b> {
-    fn new(libraries: Vec<&'a LibraryConfig>, multi_progress_bar: &'b Arc<Mutex<MultiProgress>>) -> InstallerConfig<'a, 'b> {
+    fn new(
+        libraries: Vec<&'a LibraryConfig>,
+        multi_progress_bar: &'b Arc<Mutex<MultiProgress>>
+    ) -> InstallerConfig<'a, 'b> {
         InstallerConfig {
             libraries,
             multi_progress_bar,
@@ -36,7 +39,11 @@ impl<'a, 'b> InstallerConfig<'a, 'b> {
         }
     }
 
-    fn with_groups(libraries: Vec<&'a LibraryConfig>, multi_progress_bar: &'b Arc<Mutex<MultiProgress>>, groups: HashSet<String>) -> InstallerConfig<'a, 'b> {
+    fn with_groups(
+        libraries: Vec<&'a LibraryConfig>, 
+        multi_progress_bar: &'b Arc<Mutex<MultiProgress>>,
+        groups: HashSet<String>
+    ) -> InstallerConfig<'a, 'b> {
         InstallerConfig {
             libraries,
             multi_progress_bar,
@@ -79,7 +86,7 @@ pub fn install(data: Data) -> Result<(), Box<dyn Error>> {
     let multi_progress_bar = Arc::new(Mutex::new(MultiProgress::new()));
 
     let async_thread_handles = install_async(
-        InstallerConfig::new(libraries, &multi_progress_bar)
+        InstallerConfig::new(async_libraries, &multi_progress_bar)
     );
     let group_thread_handles = install_groups(
         InstallerConfig::with_groups(
@@ -106,21 +113,24 @@ pub fn install(data: Data) -> Result<(), Box<dyn Error>> {
 }
 
 fn install_groups(config: InstallerConfig) -> Vec<JoinHandle<()>> {
-    let mut thread_handles: Vec<JoinHandle<()>> = Vec::new();
-
     if config.groups.is_none() {
         return vec![];
     }
 
+    let mut thread_handles: Vec<JoinHandle<()>> = Vec::new();
+    let library_reference: Arc<Vec<LibraryConfig>> = Arc::new(config.libraries.into_iter().cloned().collect());
+
     for group in config.groups.unwrap_or(HashSet::new()) {
-        let group_libraries: Vec<LibraryConfig> = config.libraries.clone()
-            .into_iter()
-            .filter(
-                |library| library.group.clone().is_some_and(|library_group| library_group == group)
-            )
-            .collect();
+        let library_reference_clone = Arc::clone(&library_reference);
         let multi_progress_clone = Arc::clone(&config.multi_progress_bar);
         let group_thread_handle = thread::spawn(move || {
+            let group_libraries: Vec<LibraryConfig> = library_reference_clone
+                .to_vec()
+                .into_iter()
+                .filter(
+                    |library| library.group.clone().is_some_and(|library_group| library_group == group)
+                )
+                .collect();
             install_libraries(
                 InstallerConfig::new(
                     group_libraries.iter().collect(), 
