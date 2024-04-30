@@ -5,14 +5,14 @@ use std::sync::{Arc, Mutex};
 
 #[derive(Deserialize)]
 pub struct Data {
-    library: Vec<LibraryConfig>,
+    pub library: Vec<LibraryConfig>,
 }
 
 #[derive(Deserialize, Clone)]
 pub struct LibraryConfig {
     name: String,
     group: Option<String>,
-    install_script: String,
+    pub install_script: String,
     allow_async: Option<bool>,
 }
 
