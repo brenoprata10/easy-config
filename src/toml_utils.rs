@@ -10,5 +10,5 @@ pub fn read_file(path: String) -> Result<Data, Box<dyn Error>> {
 pub fn serialize_data(content: &String) -> Result<Data, Box<dyn Error>> {
     let library_config: Data = toml::from_str(content)?;
 
-    return Ok(library_config)
+    Ok(library_config)
 }

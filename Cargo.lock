@@ -26,7 +26,6 @@ name = "easy-config"
 version = "0.1.0"
 dependencies = [
  "indicatif",
- "libc",
  "serde",
  "toml",
 ]
