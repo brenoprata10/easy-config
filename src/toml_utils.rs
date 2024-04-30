@@ -1,11 +1,14 @@
 use std::{fs, error::Error};
-use crate::Config;
 use crate::installer::Data;
 
+pub fn read_file(path: String) -> Result<Data, Box<dyn Error>> {
+    let content = fs::read_to_string(path)?;
 
-pub fn read_file(config: Config) -> Result<Data, Box<dyn Error>> {
-    let toml_string = fs::read_to_string(config.file_path)?;
-    let library_config: Data = toml::from_str(&toml_string)?;
+    serialize_data(&content)
+}
 
-    Ok(library_config)
+pub fn serialize_data(content: &String) -> Result<Data, Box<dyn Error>> {
+    let library_config: Data = toml::from_str(content)?;
+
+    return Ok(library_config)
 }

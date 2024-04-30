@@ -1,5 +1,7 @@
 use std::{error::Error, process};
 
+use crate::installer::Data;
+
 mod toml_utils;
 mod installer;
 
@@ -10,25 +12,30 @@ enum RunningAs {
 }
 
 pub struct Config {
-    file_path: String,
+    data: Data,
 }
 
 impl Config {
-    pub fn build(mut args: impl Iterator<Item = String>) -> Result<Config, &'static str> {
+    pub fn from_file(mut args: impl Iterator<Item = String>) -> Result<Config, Box<dyn Error>> {
         args.next();
 
-        let file_path = match args.next() {
-            Some(arg) => arg,
-            None => return Err("Could not fetch file path.")
+        let data = match args.next() {
+            Some(arg) => toml_utils::read_file(arg)?,
+            None => return Err("Could not fetch file path.".into())
         };
 
-        Ok(Config {file_path})
+        Ok(Config {data})
+    }
+
+    pub fn from_string(content: &String) -> Result<Config, Box<dyn Error>> {
+        let data = toml_utils::serialize_data(&content)?;
+
+        Ok(Config {data})
     }
 }
 
 pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
-    let data = toml_utils::read_file(config)?;
-    let has_sudo_commands = data.library.iter().any(|library| library.install_script.contains("sudo"));
+    let has_sudo_commands = config.data.library.iter().any(|library| library.install_script.contains("sudo"));
 
     match get_user_privileges() {
         RunningAs::Root => (),
@@ -40,7 +47,7 @@ pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
         }
     }
 
-    installer::install(data)?;
+    installer::install(config.data)?;
 
     Ok(())
 }
