@@ -7,18 +7,20 @@ fn main() {
     let config: Result<Config, Box<dyn Error>>;
 
     if args.len() > 1 {
-        config = Config::from_file(args);
+        config = Config::from_args(args);
     } else {
         let mut buffer = String::new();
         std::io::stdin().read_to_string(&mut buffer).unwrap();
         config = Config::from_string(&buffer);
     }
 
-    if let Err(error) = easy_config::run(config.unwrap_or_else(|error| {
-            eprintln!("Problem passing arguments: {error}");
-            process::exit(1);
-        })) {
-        eprintln!("Application error: {}", error);
+    let config_result = config.unwrap_or_else(|error| {
+        eprintln!("\x1b[31mProblem passing arguments: {error}");
+        process::exit(1);
+    });
+
+    if let Err(error) = easy_config::run(config_result) {
+        eprintln!("\x1b[31mApplication error: {}", error);
         process::exit(1);
     }
 }

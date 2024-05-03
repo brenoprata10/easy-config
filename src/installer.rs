@@ -10,6 +10,7 @@ pub struct Data {
 
 #[derive(Deserialize, Clone)]
 pub struct LibraryConfig {
+    pub id: Option<String>,
     name: String,
     group: Option<String>,
     pub install_script: String,
@@ -70,16 +71,16 @@ impl LibraryInstallProgressBar {
     }
 }
 
-pub fn install(data: Data) -> Result<(), Box<dyn Error>> {
-    let libraries: Vec<&LibraryConfig> = data.library
+pub fn install(library_data: Vec<LibraryConfig>) -> Result<(), Box<dyn Error>> {
+    let libraries: Vec<&LibraryConfig> = library_data
         .iter()
         .filter(|library| !library.allow_async.unwrap_or(false) && library.group.is_none())
         .collect();
-    let async_libraries: Vec<&LibraryConfig> = data.library
+    let async_libraries: Vec<&LibraryConfig> = library_data
         .iter()
         .filter(|library| library.allow_async.unwrap_or(false) && library.group.is_none())
         .collect();
-    let grouped_libraries: HashSet<String> = data.library
+    let grouped_libraries: HashSet<String> = library_data
         .iter()
         .filter_map(|library| library.group.clone())
         .collect();
@@ -90,15 +91,17 @@ pub fn install(data: Data) -> Result<(), Box<dyn Error>> {
     );
     let group_thread_handles = install_groups(
         InstallerConfig::with_groups(
-            data.library.iter().collect(),
+            library_data.iter().collect(),
             &multi_progress_bar,
             grouped_libraries, 
         )
     );
 
-    install_libraries(
-        InstallerConfig::new(libraries, &multi_progress_bar)
-    );
+    if !libraries.is_empty() {
+        install_libraries(
+            InstallerConfig::new(libraries, &multi_progress_bar)
+        );
+    }
 
     let thread_handles: Vec<JoinHandle<()>> = vec![
         async_thread_handles, 
@@ -224,7 +227,7 @@ fn install_library(library: LibraryConfig, progress_bar: &ProgressBar) -> Result
     Ok(())
 }
 
-fn runner(command: &str) -> Result<String, Box<dyn Error>> {
+pub fn runner(command: &str) -> Result<String, Box<dyn Error>> {
     let output = Command::new("/bin/sh")
         .arg("-c")
         .arg(&command)

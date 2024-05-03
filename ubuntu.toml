@@ -1,4 +1,5 @@
 [[library]]
+id = "Binaries"
 name = "Nala & Exa & RipGrep & Bat & ZSH"
 install_script = "sudo apt -y install nala exa ripgrep bat zsh"
 
@@ -25,6 +26,7 @@ wget -O- -q --show-progress https://raw.githubusercontent.com/ajeetdsouza/zoxide
 """
 
 [[library]]
+id = "nvm"
 name = "NVM"
 allow_async = true
 install_script = """
