@@ -1,5 +1,5 @@
 [[library]]
-id = "Binaries"
+id = "nala_bin"
 name = "Nala & Exa & RipGrep & Bat & ZSH"
 install_script = "sudo apt -y install nala exa ripgrep bat zsh"
 
@@ -66,6 +66,7 @@ wget -q --show-progress https://gist.githubusercontent.com/brenoprata10/ce65fcba
 """
 
 [[library]]
+id = "neovim"
 name = "Neovim"
 group = "Neovim Setup"
 install_script = """
