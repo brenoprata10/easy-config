@@ -1,4 +1,4 @@
-use std::{env, io::Read, process, error::Error};
+use std::{env, io::{Read, stdin}, process, error::Error};
 
 use easy_config::Config;
 
@@ -10,7 +10,7 @@ fn main() {
         config = Config::from_args(args);
     } else {
         let mut buffer = String::new();
-        std::io::stdin().read_to_string(&mut buffer).unwrap();
+        stdin().read_to_string(&mut buffer).unwrap();
         config = Config::from_string(&buffer);
     }
 

@@ -17,12 +17,11 @@ sudo chsh -s $(which zsh) $USER
 """
 
 [[library]]
+id = "zoxide"
 name = "Zoxide"
 allow_async = true
 install_script = """
-wget -O- -q --show-progress https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh > zoxide_install.sh \
-  && bash zoxide_install.sh \
-  && rm -rf zoxide_install.sh
+wget -O - https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | bash
 """
 
 [[library]]

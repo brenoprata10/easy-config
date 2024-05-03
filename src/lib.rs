@@ -38,23 +38,19 @@ impl Config {
 }
 
 pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
-    let has_empty_queries = config.queries
-        .clone()
-        .is_some_and(|config_query| config_query.is_empty());
+    let queries = config.queries.unwrap_or(vec![]);
+    let has_empty_queries = queries.is_empty();
     let library_data: Vec<LibraryConfig> = config.data.library
         .into_iter()
         .filter(|library| {
-            if config.queries.is_none() || has_empty_queries {
+            if has_empty_queries {
                 return true;
             }
 
             match &library.id {
-                Some(id) => config.queries
-                    .clone()
-                    .is_some_and(|queries| queries
-                         .iter()
-                         .any(|query| query.to_uppercase() == id.to_uppercase())
-                    ),
+                Some(id) => queries
+                    .iter()
+                    .any(|query| query.to_uppercase() == id.to_uppercase()),
                 None => false
             }
         }).collect();
@@ -72,7 +68,7 @@ pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
         return Err(
             format!(
                 "\x1b[0mCould not find any libraries with given ids: \x1b[33m{:?}", 
-                config.queries
+                queries
             ).into()
         );
     }
