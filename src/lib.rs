@@ -23,12 +23,8 @@ impl Config {
 
         let mut queries: Vec<String> = Vec::new();
 
-        loop {
-            let arg = args.next();
-            if arg.is_none() {
-                break;
-            }
-            queries.push(arg.unwrap());
+        while let Some(arg) = args.next() {
+            queries.push(arg);
         }
 
         Ok(Config {data, queries: Some(queries)})
@@ -42,24 +38,28 @@ impl Config {
 }
 
 pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
-    let queried_data: Vec<LibraryConfig> = config.data.library.into_iter().filter(|library| {
-        if config.queries.is_none() {
-            return true;
-        }
+    let has_empty_queries = config.queries
+        .clone()
+        .is_some_and(|config_query| config_query.is_empty());
+    let library_data: Vec<LibraryConfig> = config.data.library
+        .into_iter()
+        .filter(|library| {
+            if config.queries.is_none() || has_empty_queries {
+                return true;
+            }
 
-        match &library.id {
-            Some(id) => config.queries
-                .clone()
-                .is_some_and(|queries| queries
-                     .iter()
-                     .filter(|query| query.to_uppercase() == id.to_uppercase())
-                     .count() > 0
-                ),
-            None => false
-        }
-    }).collect();
+            match &library.id {
+                Some(id) => config.queries
+                    .clone()
+                    .is_some_and(|queries| queries
+                         .iter()
+                         .any(|query| query.to_uppercase() == id.to_uppercase())
+                    ),
+                None => false
+            }
+        }).collect();
 
-    let has_sudo_commands = queried_data
+    let has_sudo_commands = library_data
         .iter()
         .any(|library| library.install_script.contains("sudo"));
 
@@ -68,7 +68,7 @@ pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
         installer::runner("sudo ls")?;
     }
 
-    if queried_data.is_empty() && config.queries.is_some() {
+    if library_data.is_empty() && !has_empty_queries {
         return Err(
             format!(
                 "\x1b[0mCould not find any libraries with given ids: \x1b[33m{:?}", 
@@ -77,7 +77,7 @@ pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
         );
     }
 
-    installer::install(queried_data)?;
+    installer::install(library_data)?;
 
     Ok(())
 }
