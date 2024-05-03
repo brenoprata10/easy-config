@@ -60,7 +60,7 @@ rm -rf $HOME/.oh-my-zsh/custom/plugins/zsh-autosuggestions \
 [[library]]
 name = "Setup .zshrc"
 install_script = """
-wget -q --show-progress https://gist.githubusercontent.com/brenoprata10/ce65fcba53eef4c33167a093b6c86259/raw/a126fd732afe9e59ed25109c70c497495c4ec714/.zshrc -O .zshrc \
+wget -q --show-progress https://gist.githubusercontent.com/brenoprata10/ce65fcba53eef4c33167a093b6c86259/raw/047c15d1a521dd340c1d95cf44aa016b0ad19439/.zshrc -O .zshrc \
   && mv .zshrc $HOME
 """
 
@@ -84,6 +84,19 @@ install_script = "curl -fLo \"${XDG_DATA_HOME:-$HOME/.local/share}\"/nvim/site/a
 name = "PlugInstall"
 group = "Neovim Setup"
 install_script = "/opt/nvim-linux64/bin/nvim --headless +PlugInstall +qall"
+
+[[library]]
+id = "atac"
+name = "ATAC"
+allow_async = true
+install_script = """
+wget https://github.com/Julien-cpsn/ATAC/releases/download/v0.15.1/atac-v0.15.1-x86_64-unknown-linux-gnu.tar.gz \
+  && sudo rm -rf /opt/atac \ 
+  && sudo mkdir /opt/atac \
+  && sudo mkdir /opt/atac/bin \
+  && sudo tar -C /opt/atac/bin -xzf atac-v0.15.1-x86_64-unknown-linux-gnu.tar.gz \
+  && rm -rf atac-v0.15.1-x86_64-unknown-linux-gnu.tar.gz
+"""
 
 [[library]]
 name = "Fira Code"
