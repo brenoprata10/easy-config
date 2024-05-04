@@ -125,3 +125,11 @@ rm -rf $HOME/.config/nvim \
   && git clone https://github.com/brenoprata10/nvim.git \
   && mv nvim $HOME/.config
 """
+
+[[library]]
+id = "rust"
+name = "Rust & Cargo"
+allow_async = true
+install_script = """
+curl https://sh.rustup.rs -sSf | sh -s -- -y
+"""
