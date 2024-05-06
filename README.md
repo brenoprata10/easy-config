@@ -32,6 +32,13 @@ install_script = "INSTALL SCRIPT"
 id = "ID" # Optional
 allow_async = true # Optional 
 group = "GROUP" # Optional
+
+[[library]]
+name = "NAME 2"
+install_script = "INSTALL SCRIPT2"
+id = "ID2" # Optional
+allow_async = true # Optional 
+group = "GROUP 2" # Optional
 ```
 
 | Property | Type | Default Value | Description |
@@ -41,3 +48,25 @@ group = "GROUP" # Optional
 | id | String |  | Id that is needed if you'd like to run a single command instead of the whole config file |
 | allow_async | bool | false | Single command that will be run in a separate thread |
 | group | String |  | Commands that will be run sequentially in a separate thread |
+
+#### Usage
+
+Go to the location that you downloaded the binary and:
+
+- Run all of the scripts:
+
+```
+./easy-config your_config.toml
+```
+
+- Run scripts by id:
+
+```
+./easy-config your_config.toml library_id1 library_id2
+```
+
+- Run as a pipe:
+
+```
+wget -O - FILE_URL | ./easy-config
+```
