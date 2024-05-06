@@ -49,7 +49,7 @@ group = "GROUP 2" # Optional
 | install_script | String |  | Script that will be run |
 | id | String |  | Id that is needed if you'd like to run a single command instead of the whole config file |
 | allow_async | bool | false | Single command that will be run in a separate thread |
-| group | String |  | Commands that will be run sequentially in a separate thread |
+| group | String |  | Commands that will be run sequentially in a separate thread. Check [ubuntu.toml](https://github.com/brenoprata10/easy-config/blob/main/ubuntu.toml) for more information. |
 
 #### Usage
 
