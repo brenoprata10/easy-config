@@ -6,6 +6,10 @@ A glorified multi-thread shell executor.
 
 This project was built with the purpose to solve "copy paste" hell while configuring a new setup or setting up a dev environment based on a list of terminal commands that need to be executed.
 
+
+https://github.com/brenoprata10/easy-config/assets/26099427/2572558c-cc70-49ff-8f14-b201ef75dc93
+
+
 ### Installation
 
 #### Github Release
