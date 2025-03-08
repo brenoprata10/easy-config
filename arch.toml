@@ -1,0 +1,144 @@
+[[library]]
+name = "Bat Configuration"
+install_script = """
+mkdir -p ~/.local/bin \
+  && ln -s /usr/bin/batcat ~/.local/bin/bat
+"""
+
+[[library]]
+id = "zsh"
+name = "ZSH"
+install_script = "sudo pacman -S --noconfirm zsh"
+
+[[library]]
+id = "ripgrep"
+name = "Ripgrep"
+install_script = "sudo pacman -S --noconfirm ripgrep"
+
+[[library]]
+id = "zsh_default"
+name = "Set ZSH as default shell"
+install_script = """
+sudo chsh -s $(which zsh) $USER
+"""
+
+[[library]]
+id = "zoxide"
+name = "Zoxide"
+allow_async = true
+install_script = """
+wget -O - https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | bash
+"""
+
+[[library]]
+id = "nvm"
+name = "NVM"
+allow_async = true
+install_script = """
+wget -O- -q --show-progress https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh > nvm_install.sh \
+  && XDG_CONFIG_HOME=$HOME PROFILE=/dev/null bash nvm_install.sh \
+  && rm -rf nvm_install.sh
+"""
+
+[[library]]
+id = "oh_my_zsh"
+name = "Oh My Zsh"
+install_script = """
+rm -rf $HOME/.oh-my-zsh \
+  && wget -O- -q --show-progress https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh > oh-my-zsh.sh \
+  && bash oh-my-zsh.sh --unattended \
+  && rm -rf oh-my-zsh.sh
+"""
+
+[[library]]
+id = "powerlevel"
+name = "Powerlevel10k"
+install_script = """
+rm -rf $HOME/.oh-my-zsh/custom/themes/powerlevel10k \
+  && git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k
+"""
+
+[[library]]
+id = "zsh_autosuggestions"
+name = "zsh-autosuggestions"
+install_script = """
+rm -rf $HOME/.oh-my-zsh/custom/plugins/zsh-autosuggestions \
+  && git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
+"""
+
+[[library]]
+id = "setup_zsh"
+name = "Setup .zshrc"
+install_script = """
+wget -q --show-progress https://gist.githubusercontent.com/brenoprata10/ce65fcba53eef4c33167a093b6c86259/raw/047c15d1a521dd340c1d95cf44aa016b0ad19439/.zshrc -O .zshrc \
+  && mv .zshrc $HOME
+"""
+
+[[library]]
+id = "neovim"
+name = "Neovim"
+group = "Neovim Setup"
+install_script = """
+sudo pacman -S --noconfirm neovim
+"""
+
+[[library]]
+name = "Vim-Plug"
+group = "Neovim Setup"
+install_script = "curl -fLo \"${XDG_DATA_HOME:-$HOME/.local/share}\"/nvim/site/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim"
+
+[[library]]
+id = "plug_install"
+name = "PlugInstall"
+group = "Neovim Setup"
+install_script = "nvim --headless +PlugInstall +qall"
+
+[[library]]
+id = "atac"
+name = "ATAC"
+allow_async = true
+install_script = """
+wget https://github.com/Julien-cpsn/ATAC/releases/download/v0.15.1/atac-v0.15.1-x86_64-unknown-linux-gnu.tar.gz \
+  && sudo rm -rf /opt/atac \ 
+  && sudo mkdir /opt/atac \
+  && sudo mkdir /opt/atac/bin \
+  && sudo tar -C /opt/atac/bin -xzf atac-v0.15.1-x86_64-unknown-linux-gnu.tar.gz \
+  && rm -rf atac-v0.15.1-x86_64-unknown-linux-gnu.tar.gz
+"""
+
+[[library]]
+id = "fira"
+name = "Fira Code"
+allow_async = true
+install_script = """
+mkdir -p ~/.local/share/fonts/ \
+  && wget -q --show-progress https://github.com/ryanoasis/nerd-fonts/releases/download/v3.2.1/FiraCode.zip \ 
+  && unzip -qo FiraCode.zip -d FiraCode \
+  && sudo mv ./FiraCode/* ~/.local/share/fonts \
+  && rm -rf Fira*
+"""
+
+[[library]]
+name = "Git Config"
+allow_async = true
+install_script = """
+git config --global credential.helper store && export GIT_EDITOR=nvim \
+  && git config --global core.editor \"nvim\"
+"""
+
+[[library]]
+name = "Setup Neovim Config"
+allow_async = true
+install_script = """
+rm -rf $HOME/.config/nvim \ 
+  && git clone https://github.com/brenoprata10/nvim.git \
+  && mv nvim $HOME/.config
+"""
+
+[[library]]
+id = "rust"
+name = "Rust & Cargo"
+allow_async = true
+install_script = """
+curl https://sh.rustup.rs -sSf | sh -s -- -y
+"""
