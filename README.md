@@ -1,3 +1,5 @@
+![GitHub all releases](https://img.shields.io/github/downloads/brenoprata10/easy-config/total?logo=github)
+
 ## Easy Config
 
 A glorified multi-thread shell executor.
