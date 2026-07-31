@@ -60,7 +60,7 @@ rm -rf $HOME/.oh-my-zsh/custom/plugins/zsh-autosuggestions \
 [[library]]
 name = "Setup .zshrc"
 install_script = """
-wget -q --show-progress https://gist.githubusercontent.com/brenoprata10/ce65fcba53eef4c33167a093b6c86259/raw/047c15d1a521dd340c1d95cf44aa016b0ad19439/.zshrc -O .zshrc \
+wget -q --show-progress https://gist.githubusercontent.com/brenoprata10/ce65fcba53eef4c33167a093b6c86259/raw/372611ed1f5db56ce21a0a275b15c42e57834f97/.zshrc -O .zshrc \
   && mv .zshrc $HOME
 """
 
