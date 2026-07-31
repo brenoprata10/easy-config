@@ -1,7 +1,7 @@
 [[library]]
 id = "nala_bin"
 name = "Nala & Exa & RipGrep & Bat & ZSH & FZF"
-install_script = "sudo apt -y install nala exa ripgrep bat zsh fzf"
+install_script = "sudo apt update && sudo apt -y install nala exa ripgrep bat zsh fzf git"
 
 [[library]]
 name = "Bat Configuration"
@@ -122,4 +122,12 @@ name = "Rust & Cargo"
 allow_async = true
 install_script = """
 curl https://sh.rustup.rs -sSf | sh -s -- -y
+"""
+
+[[library]]
+id = "superfile"
+name = "Superfile"
+allow_async = true
+install_script = """
+bash -c "$(curl -sLo- https://superfile.dev/install.sh)"
 """
