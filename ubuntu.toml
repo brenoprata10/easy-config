@@ -1,7 +1,7 @@
 [[library]]
 id = "nala_bin"
 name = "Nala & Exa & RipGrep & Bat & ZSH & FZF"
-install_script = "sudo apt update && sudo apt -y install nala exa ripgrep bat zsh fzf git"
+install_script = "sudo apt update && sudo apt -y install nala eza ripgrep bat zsh fzf git"
 
 [[library]]
 name = "Bat Configuration"
